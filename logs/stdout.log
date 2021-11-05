@@ -1,0 +1,96 @@
+
+D:\Projects\pathfinder>call venv\Scripts\activate.bat 
+---------------------------------
+Type: created
+File: C:\Users\mallo\Downloads\Nuovo Text Document.txt
+Created event:True
+Moved event:False
+Modified event:False
+Deleted event:False
+---------------------------------
+
+---------------------------------
+Type: moved
+File: C:\Users\mallo\Downloads\Nuovo Text Document.txt
+Created event:False
+Moved event:True
+Modified event:False
+Deleted event:False
+---------------------------------
+
+*filtering*
+---------------------------------
+Type: deleted
+File: C:\Users\mallo\Downloads\ljhjghfgdgcfghj.txt
+Created event:False
+Moved event:False
+Modified event:False
+Deleted event:True
+---------------------------------
+
+---------------------------------
+Type: created
+File: C:\Users\mallo\Desktop\Nuovo Text Document.txt
+Created event:True
+Moved event:False
+Modified event:False
+Deleted event:False
+---------------------------------
+
+---------------------------------
+Type: moved
+File: C:\Users\mallo\Desktop\Nuovo Text Document.txt
+Created event:False
+Moved event:True
+Modified event:False
+Deleted event:False
+---------------------------------
+
+*filtering*
+---------------------------------
+Type: deleted
+File: C:\Users\mallo\Desktop\dfdghfhgfhgfh.txt
+Created event:False
+Moved event:False
+Modified event:False
+Deleted event:True
+---------------------------------
+
+---------------------------------
+Type: created
+File: C:\Users\mallo\Desktop\Nuovo Text Document.txt
+Created event:True
+Moved event:False
+Modified event:False
+Deleted event:False
+---------------------------------
+
+---------------------------------
+Type: moved
+File: C:\Users\mallo\Desktop\Nuovo Text Document.txt
+Created event:False
+Moved event:True
+Modified event:False
+Deleted event:False
+---------------------------------
+
+*filtering*
+---------------------------------
+Type: deleted
+File: C:\Users\mallo\Desktop\Nuovo Text Document.pdf
+Created event:False
+Moved event:False
+Modified event:False
+Deleted event:True
+---------------------------------
+
+---------------------------------
+Type: created
+File: C:\Users\mallo\Downloads\Nuovo Text Document.txt
+Created event:True
+Moved event:False
+Modified event:False
+Deleted event:False
+---------------------------------
+
+Terminare il processo batch (S/N)? 

@@ -1,0 +1,16 @@
+<RCC>
+  <qresource prefix="images">
+    <file>images/logo.png</file>
+    <file>images/down-arrow.png</file>
+  </qresource>
+  <qresource prefix="icons">
+    <file>images/plus2.ico</file>
+    <file>images/delete.ico</file>
+    <file>images/edit.ico</file>
+    <file>images/plus.ico</file>
+    <file>images/folder.ico</file>
+    <file>images/info.ico</file>
+    <file>images/puzzle.ico</file>
+    <file>images/travel.ico</file>
+  </qresource>
+</RCC>
