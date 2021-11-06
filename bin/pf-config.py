@@ -10,19 +10,25 @@ from pathfinder import readINI
 from tkinter import filedialog, Tk
 import configparser
 
-class MainWindow(QMainWindow):
-    def __init__(self, parent=None):
-        QMainWindow.__init__(self, parent)
-        
-        loadUi('D:\\Projects\\pathfinder\\gui\\pathfinder-main.ui', self)
-        self.setFixedSize(800, 500)
-
-        self.updateStructs()
-        self.focus = 0
-
+class Window():
+    def __init__(self, UIModel="") -> None:
         self.scrollLayout =  QGridLayout()
+        self.layoutVerticalSpacer = QSpacerItem(40, 20,  QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        self.itemsX = 0
+        self.itemsY = 0
+
+        loadUi(UIModel, self)
         self.scrollAreaContent.setLayout(self.scrollLayout)
-        self.spacer = QSpacerItem(40, 20,  QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+
+    def resetStructs(self):
+        self.tracklist, self.sources, self.extensions, self.destinations = readINI("data.ini")
+
+class MainWindow(Window, QMainWindow):
+    def __init__(self, UIModel, parent=None):
+        QMainWindow.__init__(self, parent)
+        Window.__init__(self, UIModel)
+
+        self.setFixedSize(800, 500)
 
         self.sourceUI()
         
@@ -33,9 +39,6 @@ class MainWindow(QMainWindow):
         self.addButton.clicked.connect(self.addItem)
 
         self.show()
-
-    def updateStructs(self):
-        self.tracklist, self.sources, self.extensions, self.destinations = readINI("data.ini")
 
     def askDir(self):
         root = Tk()
@@ -54,7 +57,7 @@ class MainWindow(QMainWindow):
         with open('data.ini', 'w') as configfile:
             parser.write(configfile)
 
-        self.updateStructs()
+        self.resetStructs()
 
     def readRawOption(self, section, key):
         parser = configparser.ConfigParser(delimiters=('='), allow_no_value=True)
@@ -62,11 +65,8 @@ class MainWindow(QMainWindow):
         parser.read("data.ini")
         return parser.get(section, key)
 
-    def clearContent(self, layout):
-        layout.removeItem(self.spacer)
-
-        #for i in range(layout.count()):
-            #layout.itemAt(i).widget().deleteLater()
+    def clearLayoutContent(self, layout):
+        layout.removeItem(self.layoutVerticalSpacer)
 
         for i in reversed(range(layout.count())):
             layout.itemAt(i).widget().setParent(None)
@@ -76,53 +76,52 @@ class MainWindow(QMainWindow):
             if isinstance(widget, QPushButton) and widget != button and widget.isChecked():
                 widget.setChecked(False)
 
+    def initUI(self, focus=0, labelText=""):
+        self.resetStructs()
+        self.toggleSidebarItem(self.sender())
+        self.clearLayoutContent(self.scrollLayout)
+
+        self.addButton.setDisabled(False)
+        self.focus = focus
+
+        self.descriptionLabel.setText(labelText)
+        self.itemsX, self.itemsY = 0, 0
+
     @QtCore.Slot()
     def sourceUI(self):
-        self.updateStructs()
-        self.toggleSidebarItem(self.sender())
-        self.clearContent(self.scrollLayout)
-
-        self.sourceButton.setChecked(True)
-        self.addButton.setDisabled(False)
-        self.focus = 0
-
-        self.descriptionLabel.setText("Manage here the folders you want Pathfinder to extract your files from")
-        y, x = 0, 0
+        text = "Manage here the folders you want Pathfinder to extract your files from"
+        self.initUI(labelText=text)
         
+        self.sourceButton.setChecked(True)
+
         for source in self.sources:
             widget = loadUi('D:\\Projects\\pathfinder\\gui\\source.ui')
             widget.textEdit.setText(source)
             widget.editButton.clicked.connect(self.editItem)
             widget.deleteButton.clicked.connect(lambda: self.deleteItem("TRACKED", "sources", widget.textEdit.text()))
-            self.scrollLayout.addWidget(widget, y, x)
-            y += 1
+            self.scrollLayout.addWidget(widget, self.itemsY, self.itemsX)
+            self.itemsY += 1
         
-        self.scrollLayout.addItem(self.spacer, Alignment = QtCore.Qt.AlignTop)
+        self.scrollLayout.addItem(self.layoutVerticalSpacer, Alignment = QtCore.Qt.AlignTop)
             
     @QtCore.Slot()
     def extUI(self):
-        self.updateStructs()
-        self.toggleSidebarItem(self.sender())
-        self.clearContent(self.scrollLayout)
+        text = "Add here the extensions of the files you want Pathfinder to move"
+        self.initUI(focus = 1, labelText = text)
 
         self.extButton.setChecked(True)
-        self.addButton.setDisabled(False)
-        self.focus = 1
-
-        self.descriptionLabel.setText("Add here the extensions of the files you want Pathfinder to move")
-        y, x = 0, 0
 
         for ext in self.extensions:
             widget = loadUi('D:\\Projects\\pathfinder\\gui\\extension.ui')
             widget.textEdit.setText(ext)
             widget.deleteButton.clicked.connect(lambda: self.deleteItem("TRACKED", "extensions", widget.textEdit.text()))
-            self.scrollLayout.addWidget(widget, y, x)
+            self.scrollLayout.addWidget(widget, self.itemsY, self.itemsX)
 
-            if x < 3:
-                x += 1
+            if self.itemsX < 3:
+                self.itemsX += 1
             else:
-                x = 0
-                y += 1
+                self.itemsX = 0
+                self.itemsY += 1
 
             if ext == "." or " " in ext:
                 widget.textEdit.setReadOnly(False)
@@ -130,20 +129,14 @@ class MainWindow(QMainWindow):
                 self.addButton.setDisabled(True)
                 widget.textEdit.returnPressed.connect(lambda: self.extConfirmed(widget.textEdit.text()))
 
-        self.scrollLayout.addItem(self.spacer, Alignment = QtCore.Qt.AlignTop)
+        self.scrollLayout.addItem(self.layoutVerticalSpacer, Alignment = QtCore.Qt.AlignTop)
 
     @QtCore.Slot()
     def destUI(self):
-        self.updateStructs()
-        self.toggleSidebarItem(self.sender())
-        self.clearContent(self.scrollLayout)
-
+        text = "Manage here the folders where you want Pathfinder to place your files"
+        self.initUI(focus = 2, labelText = text)
+        
         self.destButton.setChecked(True)
-        self.addButton.setDisabled(False)
-        self.focus = 2
-
-        self.descriptionLabel.setText("Manage here the folders where you want Pathfinder to place your files")
-        y, x = 0, 0
 
         for destination in self.destinations:
             widget = loadUi('D:\\Projects\\pathfinder\\gui\\destination.ui')
@@ -157,21 +150,17 @@ class MainWindow(QMainWindow):
             widget.extButton.clicked.connect(self.associate)
             widget.editButton.clicked.connect(self.editItem)
             widget.deleteButton.clicked.connect(lambda: self.deleteItem("TRACKED", "destinations", widget.textEdit.text()))
-            self.scrollLayout.addWidget(widget, y, x)
-            y += 1
+            self.scrollLayout.addWidget(widget, self.itemsY, self.itemsX)
+            self.itemsY += 1
   
-        self.scrollLayout.addItem(self.spacer, Alignment = QtCore.Qt.AlignTop)
+        self.scrollLayout.addItem(self.layoutVerticalSpacer, Alignment = QtCore.Qt.AlignTop)
 
     @QtCore.Slot()
     def infoUI(self):
-        self.toggleSidebarItem(self.sender())
-        self.clearContent(self.scrollLayout)
+        text = "About this software"
+        self.initUI(focus = 3, labelText = text)
 
         self.infoButton.setChecked(True)
-        self.focus = 3
-        self.addButton.setDisabled(True)
-
-        self.descriptionLabel.setText("About this software")
 
     @QtCore.Slot()
     def deleteItem(self, section, key, value):
@@ -193,7 +182,7 @@ class MainWindow(QMainWindow):
             with open('data.ini', 'w') as configfile:
                 parser.write(configfile)
 
-            self.updateStructs()
+            self.resetStructs()
             
             self.destUI()
 
@@ -239,16 +228,25 @@ class MainWindow(QMainWindow):
 
     @QtCore.Slot()
     def associate(self):
-        dialog = loadUi('D:\\Projects\\pathfinder\\gui\\dialog.ui')
-        grid = QGridLayout()
-        
+        dialog = Dialog(UIModel = 'D:\\Projects\\pathfinder\\gui\\dialog.ui')
+        dialog.show()
+
+class Dialog(Window, QDialog):
+    def __init__(self, UIModel, parent=None):
+        QDialog.__init__(self, parent)
+        Window.__init__(self, UIModel)
+
+        self.resetStructs()
+
+        self.show()
+    
+    def fillScrollArea(self):
         for ext in self.extensions:
             if ext not in self.tracklist.values():
                 widget = loadUi('D:\\Projects\\pathfinder\\gui\\ext-choice.ui')
                 widget.setText(ext)
-        dialog.exec()
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    window = MainWindow()
+    window = MainWindow(UIModel = 'D:\\Projects\\pathfinder\\gui\\pathfinder-main.ui')
     sys.exit(app.exec_())
