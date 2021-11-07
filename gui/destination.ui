@@ -116,6 +116,12 @@ padding: 10px;
       </item>
       <item>
        <widget class="QPushButton" name="extButton">
+        <property name="maximumSize">
+         <size>
+          <width>35</width>
+          <height>35</height>
+         </size>
+        </property>
         <property name="styleSheet">
          <string notr="true">QPushButton
 {

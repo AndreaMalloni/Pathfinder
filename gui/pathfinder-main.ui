@@ -109,7 +109,7 @@
                <enum>Qt::AutoText</enum>
               </property>
               <property name="pixmap">
-               <pixmap>:/images/images/logo.png</pixmap>
+               <pixmap resource="resource.qrc">:/images/images/logo.png</pixmap>
               </property>
               <property name="scaledContents">
                <bool>true</bool>
@@ -888,6 +888,9 @@ padding-left: 15px;
                    <height>0</height>
                   </size>
                  </property>
+                 <property name="focusPolicy">
+                  <enum>Qt::NoFocus</enum>
+                 </property>
                  <property name="styleSheet">
                   <string notr="true"/>
                  </property>
@@ -902,6 +905,9 @@ padding-left: 15px;
                  </property>
                  <property name="horizontalScrollBarPolicy">
                   <enum>Qt::ScrollBarAsNeeded</enum>
+                 </property>
+                 <property name="sizeAdjustPolicy">
+                  <enum>QAbstractScrollArea::AdjustIgnored</enum>
                  </property>
                  <property name="widgetResizable">
                   <bool>true</bool>

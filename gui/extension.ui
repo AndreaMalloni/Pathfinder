@@ -107,6 +107,12 @@ padding: 10px;
       </item>
       <item>
        <widget class="QPushButton" name="deleteButton">
+        <property name="maximumSize">
+         <size>
+          <width>35</width>
+          <height>35</height>
+         </size>
+        </property>
         <property name="toolTip">
          <string>Delete item</string>
         </property>

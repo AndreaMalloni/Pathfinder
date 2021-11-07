@@ -115,8 +115,8 @@ padding: 10px;
         </property>
         <property name="maximumSize">
          <size>
-          <width>40</width>
-          <height>40</height>
+          <width>35</width>
+          <height>35</height>
          </size>
         </property>
         <property name="toolTip">
@@ -172,6 +172,12 @@ background-color: rgb(47, 55, 77);
       </item>
       <item>
        <widget class="QPushButton" name="deleteButton">
+        <property name="maximumSize">
+         <size>
+          <width>35</width>
+          <height>35</height>
+         </size>
+        </property>
         <property name="toolTip">
          <string>Delete item</string>
         </property>
