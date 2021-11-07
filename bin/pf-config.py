@@ -12,13 +12,13 @@ import configparser
 
 class Window():
     def __init__(self, UIModel="") -> None:
-        self.scrollLayout =  QGridLayout()
-        self.layoutVerticalSpacer = QSpacerItem(40, 20,  QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        self.scrollLayout =  QGridLayout(Alignment = QtCore.Qt.AlignTop)
         self.itemsX = 0
         self.itemsY = 0
 
         loadUi(UIModel, self)
         self.scrollAreaContent.setLayout(self.scrollLayout)
+        self.scrollLayout.setHorizontalSpacing(12)
 
     def resetStructs(self):
         self.tracklist, self.sources, self.extensions, self.destinations = readINI("data.ini")
@@ -66,8 +66,6 @@ class MainWindow(Window, QMainWindow):
         return parser.get(section, key)
 
     def clearLayoutContent(self, layout):
-        layout.removeItem(self.layoutVerticalSpacer)
-
         for i in reversed(range(layout.count())):
             layout.itemAt(i).widget().setParent(None)
 
@@ -101,9 +99,7 @@ class MainWindow(Window, QMainWindow):
             widget.deleteButton.clicked.connect(lambda: self.deleteItem("TRACKED", "sources", widget.textEdit.text()))
             self.scrollLayout.addWidget(widget, self.itemsY, self.itemsX)
             self.itemsY += 1
-        
-        self.scrollLayout.addItem(self.layoutVerticalSpacer, Alignment = QtCore.Qt.AlignTop)
-            
+                    
     @QtCore.Slot()
     def extUI(self):
         text = "Add here the extensions of the files you want Pathfinder to move"
@@ -128,8 +124,7 @@ class MainWindow(Window, QMainWindow):
                 widget.textEdit.setFocus()
                 self.addButton.setDisabled(True)
                 widget.textEdit.returnPressed.connect(lambda: self.extConfirmed(widget.textEdit.text()))
-
-        self.scrollLayout.addItem(self.layoutVerticalSpacer, Alignment = QtCore.Qt.AlignTop)
+                #swidget.textEdit.focusOutEvent.connect(lambda: self.deleteItem("TRACKED", "extensions", "."))
 
     @QtCore.Slot()
     def destUI(self):
@@ -152,8 +147,6 @@ class MainWindow(Window, QMainWindow):
             widget.deleteButton.clicked.connect(lambda: self.deleteItem("TRACKED", "destinations", widget.textEdit.text()))
             self.scrollLayout.addWidget(widget, self.itemsY, self.itemsX)
             self.itemsY += 1
-  
-        self.scrollLayout.addItem(self.layoutVerticalSpacer, Alignment = QtCore.Qt.AlignTop)
 
     @QtCore.Slot()
     def infoUI(self):
@@ -236,15 +229,24 @@ class Dialog(Window, QDialog):
         QDialog.__init__(self, parent)
         Window.__init__(self, UIModel)
 
+        self.setFixedSize(510, 360)
         self.resetStructs()
-
+        self.fillScrollArea()
         self.show()
     
     def fillScrollArea(self):
         for ext in self.extensions:
-            if ext not in self.tracklist.values():
+            if ext not in self.tracklist.values() and ext != ("." or " "):
                 widget = loadUi('D:\\Projects\\pathfinder\\gui\\ext-choice.ui')
-                widget.setText(ext)
+                widget.extButton.setText(ext)
+
+                self.scrollLayout.addWidget(widget, self.itemsY, self.itemsX)
+
+                if self.itemsX < 3:
+                    self.itemsX += 1
+                else:
+                    self.itemsX = 0
+                    self.itemsY += 1
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
