@@ -5,8 +5,7 @@ from watchdog.observers import Observer
 from watchdog.events import FileCreatedEvent, FileDeletedEvent, FileModifiedEvent, FileMovedEvent, FileSystemEventHandler
 import configparser
 
-
-def readINI(file):
+def loadConfig(file):
     tracklist = {}
 
     parser = configparser.ConfigParser(delimiters=('='), allow_no_value=True)
@@ -100,7 +99,7 @@ class Handler(FileSystemEventHandler):
             filter(os.path.dirname(event.src_path))
 
 if __name__ == '__main__':
-    tracklist, sources, extensions, destinations = readINI("data.ini")
+    tracklist, sources, extensions, destinations = loadConfig("data.ini")
     
     if not startup():
         sys.exit()
