@@ -1,12 +1,12 @@
 import sys
 import platform
 from PySide2 import QtCore, QtGui, QtWidgets
-from PySide2.QtCore import (QCoreApplication, QPropertyAnimation, QDate, QDateTime, QMetaObject, QObject, QPoint, QRect, QSize, QTime, QUrl, Qt, QEvent)
-from PySide2.QtGui import (QBrush, QColor, QConicalGradient, QCursor, QFont, QFontDatabase, QIcon, QKeySequence, QLinearGradient, QPalette, QPainter, QPixmap, QRadialGradient)
+from PySide2.QtCore import (QCoreApplication, QPropertyAnimation, QDate, QDateTime, QMetaObject, QObject, QPoint, QRect, QSize, QTime, QUrl, Qt, QEvent, QRegExp)
+from PySide2.QtGui import (QBrush, QColor, QConicalGradient, QCursor, QFont, QFontDatabase, QIcon, QKeySequence, QLinearGradient, QPalette, QPainter, QPixmap, QRadialGradient, QRegExpValidator)
 from PySide2.QtWidgets import *
 from pyside_dynamic import *
 from resources import *
-from pathfinder import readINI
+from pathfinder import loadConfig
 from tkinter import filedialog, Tk
 import configparser
 
@@ -21,7 +21,7 @@ class Window():
         self.scrollLayout.setHorizontalSpacing(12)
 
     def resetStructs(self):
-        self.tracklist, self.sources, self.extensions, self.destinations = readINI("data.ini")
+        self.tracklist, self.sources, self.extensions, self.destinations = loadConfig("data.ini")
 
 class MainWindow(Window, QMainWindow):
     def __init__(self, UIModel, parent=None):
@@ -119,12 +119,12 @@ class MainWindow(Window, QMainWindow):
                 self.itemsX = 0
                 self.itemsY += 1
 
-            if ext == "." or " " in ext:
+            if ext == "." in ext:
                 widget.textEdit.setReadOnly(False)
                 widget.textEdit.setFocus()
                 self.addButton.setDisabled(True)
-                widget.textEdit.returnPressed.connect(lambda: self.extConfirmed(widget.textEdit.text()))
-                #swidget.textEdit.focusOutEvent.connect(lambda: self.deleteItem("TRACKED", "extensions", "."))
+                widget.textEdit.setValidator(QRegExpValidator(QRegExp(r'^\.[a-zA-Z0-9]+$'), self))
+                widget.textEdit.editingFinished.connect(lambda: self.extConfirmed(widget.textEdit.text()))
 
     @QtCore.Slot()
     def destUI(self):
