@@ -4,6 +4,10 @@
     <file>images/down-arrow.png</file>
   </qresource>
   <qresource prefix="icons">
+    <file>images/checkbox.ico</file>
+    <file>images/stop.ico</file>
+    <file>images/multiplication.ico</file>
+    <file>images/check.ico</file>
     <file>images/plus2.ico</file>
     <file>images/delete.ico</file>
     <file>images/edit.ico</file>

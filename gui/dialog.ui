@@ -65,7 +65,8 @@ padding-left: 15px;
    <item>
     <widget class="QFrame" name="scrollFrame">
      <property name="styleSheet">
-      <string notr="true">QScrollBar:horizontal
+      <string notr="true">
+QScrollBar:horizontal
     {
         height: 15px;
         margin: 3px 15px 3px 15px;
@@ -202,6 +203,21 @@ padding-left: 15px;
       <enum>QFrame::Raised</enum>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_2">
+      <property name="spacing">
+       <number>0</number>
+      </property>
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
       <item>
        <widget class="QScrollArea" name="scrollArea">
         <property name="minimumSize">
@@ -212,10 +228,7 @@ padding-left: 15px;
         </property>
         <property name="styleSheet">
          <string notr="true">background-color: rgb(36, 42, 59);
-
-QScrollArea {
-border-radius: 5px;
-}</string>
+border-radius: 10px</string>
         </property>
         <property name="frameShape">
          <enum>QFrame::NoFrame</enum>
@@ -237,8 +250,8 @@ border-radius: 5px;
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>441</width>
-           <height>212</height>
+           <width>459</width>
+           <height>217</height>
           </rect>
          </property>
          <property name="minimumSize">
@@ -255,36 +268,83 @@ border-radius: 5px;
    </item>
    <item>
     <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="minimumSize">
+      <size>
+       <width>85</width>
+       <height>0</height>
+      </size>
+     </property>
      <property name="font">
       <font>
-       <pointsize>10</pointsize>
-       <weight>75</weight>
-       <bold>true</bold>
+       <weight>50</weight>
+       <bold>false</bold>
       </font>
      </property>
-     <property name="autoFillBackground">
-      <bool>false</bool>
-     </property>
      <property name="styleSheet">
-      <string notr="true">QDialogButtonBox QPushButton
-{
+      <string notr="true">#buttonBox *[text=&quot;Cancel&quot;] {
+qproperty-icon: url(:/icons/images/multiplication.ico);
 color: rgb(255, 255, 255);
+border-radius: 5px;
+text-align: center;
+padding: 10px;
+width: 60px;
+font-size: 12px;
 font-weight: bold;
-font-size: 11px;
+
 }
 
-QDialogButtonBox {
+#buttonBox *[text=&quot;Cancel&quot;]:hover
+{
+color: rgb(255, 255, 255);
+border-radius: 5px;
+text-align: center;
+padding: 10px;
+background-color: rgb(36, 42, 59);
+}
+
+#buttonBox *[text=&quot;Cancel&quot;]:checked
+{
+color: rgb(255, 255, 255);
 border-radius: 10px;
-}</string>
+text-align: center;
+padding: 10px;
+background-color: rgb(47, 55, 77);
+}
+
+#buttonBox *[text=&quot;OK&quot;] {
+qproperty-icon: url(:/icons/images/check.ico);
+color: rgb(255, 255, 255);
+border-radius: 5px;
+text-align: center;
+padding: 10px;
+width: 60px;
+font-size: 12px;
+font-weight: bold;
+}
+
+#buttonBox *[text=&quot;OK&quot;]:hover
+{
+color: rgb(255, 255, 255);
+border-radius: 5px;
+text-align: center;
+padding: 10px;
+background-color: rgb(36, 42, 59);
+}
+
+#buttonBox *[text=&quot;OK&quot;]:checked
+{
+color: rgb(255, 255, 255);
+border-radius: 10px;
+text-align: center;
+padding: 10px;
+background-color: rgb(47, 55, 77);
+} </string>
      </property>
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
      <property name="standardButtons">
       <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-     </property>
-     <property name="centerButtons">
-      <bool>false</bool>
      </property>
     </widget>
    </item>
@@ -293,38 +353,5 @@ border-radius: 10px;
  <resources>
   <include location="resource.qrc"/>
  </resources>
- <connections>
-  <connection>
-   <sender>buttonBox</sender>
-   <signal>accepted()</signal>
-   <receiver>Dialog</receiver>
-   <slot>accept()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>248</x>
-     <y>254</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>157</x>
-     <y>274</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>buttonBox</sender>
-   <signal>rejected()</signal>
-   <receiver>Dialog</receiver>
-   <slot>reject()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>316</x>
-     <y>260</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>286</x>
-     <y>274</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>
