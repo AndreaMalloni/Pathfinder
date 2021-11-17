@@ -3,23 +3,7 @@ import os.path
 import time
 from watchdog.observers import Observer
 from watchdog.events import FileCreatedEvent, FileDeletedEvent, FileModifiedEvent, FileMovedEvent, FileSystemEventHandler
-import configparser
-
-def loadConfig(file):
-    tracklist = {}
-
-    parser = configparser.ConfigParser(delimiters=('='), allow_no_value=True)
-    parser.optionxform = str
-    parser.read(file)
-
-    sources = list(parser.get("TRACKED", "sources").split(" "))
-    extensions = list(parser.get("TRACKED", "extensions").split(" "))
-    destinations = list(parser.get("TRACKED", "destinations").split(" "))
-
-    for key in parser["TRACKLIST"]:
-        tracklist[key] = list(parser["TRACKLIST"][key].split(" "))
-
-    return tracklist, sources, extensions, destinations
+from dataParser import CustomParser
 
 '''
 Function that iterates over the directories contained in "sources" global list,
@@ -99,7 +83,8 @@ class Handler(FileSystemEventHandler):
             filter(os.path.dirname(event.src_path))
 
 if __name__ == '__main__':
-    tracklist, sources, extensions, destinations = loadConfig("data.ini")
+    parser = CustomParser("data.ini")
+    tracklist, sources, extensions, destinations = parser.loadConfig("data.ini")
     
     if not startup():
         sys.exit()
