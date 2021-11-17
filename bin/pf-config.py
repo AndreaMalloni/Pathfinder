@@ -144,7 +144,9 @@ class MainWindow(Window, QMainWindow):
         self.initSectionUI(focus = 3, labelText = text)
 
         self.infoButton.setChecked(True)
-
+        widget = loadUi('D:\\Projects\\pathfinder\\gui\\info.ui')
+        self.scrollLayout.addWidget(widget)
+        
     @QtCore.Slot()
     def addItem(self) -> None:
         if self.focus == 0:
@@ -181,7 +183,7 @@ class MainWindow(Window, QMainWindow):
 
     @QtCore.Slot()
     def deleteItem(self, section, key, value) -> None:
-        self.parser.writeRawOption(self.configFile, section, key, self.parser.readRawOption(self.configFile, section, key)[:-(len(value) + 1)])
+        self.parser.writeRawOption(section, key, self.parser.readRawOption(self.configFile, section, key)[:-(len(value) + 1)])
 
         if self.focus == 0:
             self.sourceUI()
