@@ -6,19 +6,11 @@ from PySide2.QtGui import (QBrush, QColor, QConicalGradient, QCursor, QFont, QFo
 from PySide2.QtWidgets import *
 from pyside_dynamic import *
 from resources import *
-from tkinter import filedialog, Tk
-from dataParser import CustomParser
-
-def askDir():
-    root = Tk()
-    root.withdraw()
-
-    dir = filedialog.askdirectory()
-    return dir
+from configInterface import ConfigManager
 
 class Window():
     def __init__(self, UIModel: str) -> None:
-        self.parser = CustomParser("data.ini")
+        self.configManager = ConfigManager("data.ini")
         self.scrollLayout =  QGridLayout(Alignment = QtCore.Qt.AlignTop)
         self.itemsX = 0
         self.itemsY = 0
@@ -28,7 +20,7 @@ class Window():
         self.scrollLayout.setHorizontalSpacing(12)
 
     def setStructs(self):
-        self.tracklist, self.sources, self.extensions, self.destinations = self.parser.loadConfig()
+        self.tracklist, self.sources, self.extensions, self.destinations = self.configManager.loadConfig()
 
     def clearLayout(self, layout) -> None:
         for i in reversed(range(layout.count())):
@@ -41,23 +33,22 @@ class Window():
             widget.textEdit.setText(item)
             layout.addWidget(widget, self.itemsY, self.itemsX)
             if gridAlignment:
-                self.itemsX, self.itemsY = self.updateXY(self.itemsX, self.itemsY, 1, 1, maxColumn = 4, gridAlignment = True)
+                self.updateItemsXY(1, 1, maxColumn = 4, gridAlignment = True)
             else:
-                self.itemsX, self.itemsY = self.updateXY(self.itemsX, self.itemsY, 0, 1)
+                self.updateItemsXY(0, 1)
             widgets.append(widget)
         return widgets
 
-    def updateXY(self, x: int, y: int, dx = 0, dy = 0, maxColumn = 99999, gridAlignment = False):
+    def updateItemsXY(self, dx = 0, dy = 0, maxColumn = 99999, gridAlignment = False):
         if gridAlignment:
-            if x < maxColumn - 1:
-                x += dx
+            if self.itemsX < maxColumn - 1:
+                self.itemsX += dx
             else:
-                x = 0
-                y += dy
+                self.itemsX = 0
+                self.itemsY += dy
         else:
-            x += dx
-            y += dy
-        return (x, y)
+            self.itemsX += dx
+            self.itemsY += dy
 
 class MainWindow(Window, QMainWindow):
     def __init__(self, UIModel, parent=None):
@@ -72,7 +63,7 @@ class MainWindow(Window, QMainWindow):
         self.extButton.clicked.connect(self.extUI)
         self.destButton.clicked.connect(self.destUI)
         self.infoButton.clicked.connect(self.infoUI)
-        self.addButton.clicked.connect(self.addItem)
+        self.addButton.clicked.connect(self.newLayoutItem)
 
         self.show()
 
@@ -91,7 +82,13 @@ class MainWindow(Window, QMainWindow):
         for widget in self.sidebarFrame.children():
             if isinstance(widget, QPushButton) and widget != button and widget.isChecked():
                 widget.setChecked(False)
-                
+
+    def makeExtEditable(self, widget):
+        widget.textEdit.setReadOnly(False)
+        widget.textEdit.setFocus()
+        widget.textEdit.setValidator(QRegExpValidator(QRegExp(r'^\.[a-zA-Z0-9]+$'), self))
+        widget.textEdit.editingFinished.connect(lambda: self.editLayoutItem(widget.textEdit.text()))
+
     @QtCore.Slot()
     def sourceUI(self) -> None:
         text = "Manage here the folders you want Pathfinder to extract your files from"
@@ -100,8 +97,8 @@ class MainWindow(Window, QMainWindow):
         self.sourceButton.setChecked(True)
         layoutContent = self.fillLayout(self.scrollLayout, self.sources, 'D:\\Projects\\pathfinder\\gui\\source.ui')
         for widget in layoutContent:
-            widget.editButton.clicked.connect(self.editItem)
-            widget.deleteButton.clicked.connect(lambda: self.deleteItem("TRACKED", "sources", widget.textEdit.text()))
+            widget.editButton.clicked.connect(lambda: self.editLayoutItem(widget.textEdit.text()))
+            widget.deleteButton.clicked.connect(lambda: self.removeLayoutItem(widget.textEdit.text()))
                     
     @QtCore.Slot()
     def extUI(self) -> None:
@@ -111,14 +108,11 @@ class MainWindow(Window, QMainWindow):
         self.extButton.setChecked(True)
         layoutContent = self.fillLayout(self.scrollLayout, self.extensions, 'D:\\Projects\\pathfinder\\gui\\extension.ui', gridAlignment = True)
         for widget in layoutContent:
-            widget.deleteButton.clicked.connect(lambda: self.deleteItem("TRACKED", "extensions", widget.textEdit.text()))
+            widget.deleteButton.clicked.connect(lambda: self.removeLayoutItem(widget.textEdit.text()))
 
             if widget.textEdit.text() == ".":
-                widget.textEdit.setReadOnly(False)
-                widget.textEdit.setFocus()
+                self.makeExtEditable(widget)
                 self.addButton.setDisabled(True)
-                widget.textEdit.setValidator(QRegExpValidator(QRegExp(r'^\.[a-zA-Z0-9]+$'), self))
-                widget.textEdit.editingFinished.connect(lambda: self.extConfirmed(widget.textEdit.text()))
 
     @QtCore.Slot()
     def destUI(self) -> None:
@@ -129,9 +123,9 @@ class MainWindow(Window, QMainWindow):
 
         layoutContent = self.fillLayout(self.scrollLayout, self.destinations, 'D:\\Projects\\pathfinder\\gui\\destination.ui')
         for widget in layoutContent:
-            widget.extButton.clicked.connect(lambda: self.associate(widget.textEdit.text()))
-            widget.editButton.clicked.connect(self.editItem)
-            widget.deleteButton.clicked.connect(lambda: self.deleteItem("TRACKED", "destinations", widget.textEdit.text()))
+            widget.extButton.clicked.connect(lambda: self.connectExtension(widget.textEdit.text()))
+            widget.editButton.clicked.connect(lambda: self.editLayoutItem(widget.textEdit.text()))
+            widget.deleteButton.clicked.connect(lambda: self.removeLayoutItem(widget.textEdit.text()))
 
             for ext in self.tracklist[widget.textEdit.text()]:
                 widget.extComboBox.addItem(ext)
@@ -148,69 +142,52 @@ class MainWindow(Window, QMainWindow):
         self.scrollLayout.addWidget(widget)
         
     @QtCore.Slot()
-    def addItem(self) -> None:
+    def newLayoutItem(self) -> None:
         if self.focus == 0:
-            sources = self.parser.readRawOption(self.configFile, "TRACKED", "sources") 
-            dir = askDir()
-            self.parser.writeRawOption(self.configFile, "TRACKED", "sources", sources + " " + dir)  
+            self.configManager.addToConfig(self.focus, "TRACKED", "sources")
             self.sourceUI()
-        if self.focus == 1:
-            extensions = self.parser.readRawOption(self.configFile, "TRACKED", "extensions")
-            self.parser.writeRawOption(self.configFile, "TRACKED", "extensions", extensions + " " + ".")
+        elif self.focus == 1:
+            self.configManager.addToConfig(self.focus, "TRACKED", "extensions")
             self.extUI()
-        if self.focus == 2:
-            destinations = self.parser.readRawOption(self.configFile, "TRACKED", "destinations") 
-            dir = askDir()
-            self.parser.writeRawOption(self.configFile, "TRACKED", "destinations", destinations + " " + dir)
-            self.parser.writeRawOption(self.configFile, "TRACKLIST", dir)
+        elif self.focus == 2:
+            self.configManager.addToConfig(self.focus, "TRACKED", "destinations")
             self.destUI()
 
     @QtCore.Slot()
-    def editItem(self) -> None:
+    def editLayoutItem(self, item: str) -> None:
         if self.focus == 0:
-            sources = self.parser.readRawOption(self.configFile, "TRACKED", "sources") 
-            dir = askDir()
-            if dir != "":
-                self.parser.writeRawOption(self.configFile, "TRACKED", "sources", sources.replace(self.sender().parent().parent().textEdit.text(), dir))
-                self.sourceUI()
-        if self.focus == 2:
-            destinations = self.parser.readRawOption(self.configFile, "TRACKED", "destinations") 
-            dir = askDir()
-            if dir != "":
-                path = self.sender().parent().parent().textEdit.text()
-                self.parser.writeRawOption(self.configFile, "TRACKED", "destinations", destinations.replace(path, dir))
-                self.destUI()
-
-    @QtCore.Slot()
-    def deleteItem(self, section, key, value) -> None:
-        self.parser.writeRawOption(section, key, self.parser.readRawOption(self.configFile, section, key)[:-(len(value) + 1)])
-
-        if self.focus == 0:
+            self.configManager.editConfig(self.focus, "TRACKED", "sources", item)
             self.sourceUI()
-        if self.focus == 1:
+        elif self.focus == 1:
+            self.configManager.editConfig(self.focus, "TRACKED", "extensions", item)
             self.extUI()
-        if self.focus == 2:
-            self.parser.writeRawKey("TRACKLIST", value)
+        elif self.focus == 2:
+            self.configManager.editConfig(self.focus, "TRACKED", "destinations", item)
             self.destUI()
 
     @QtCore.Slot()
-    def extConfirmed(self, ext: str):
-        if (ext != ".") and (ext != "") and (" " not in ext) and (ext not in self.extensions):
-            extensions = self.parser.readRawOption(self.configFile, "TRACKED", "extensions")
-            self.parser.writeRawOption(self.configFile, "TRACKED", "extensions", ext.join(extensions.rsplit(".", 1)))
+    def removeLayoutItem(self, item: str) -> None:
+        if self.focus == 0:
+            self.configManager.removeFromConfig(self.focus, "TRACKED", "sources", item)
+            self.sourceUI()
+        elif self.focus == 1:
+            self.configManager.removeFromConfig(self.focus, "TRACKED", "extensions", item)
             self.extUI()
+        elif self.focus == 2:
+            self.configManager.removeFromConfig(self.focus, "TRACKED", "destinations", item)
+            self.destUI()
 
     @QtCore.Slot()
-    def associate(self, destination: str):
+    def connectExtension(self, destination: str):
         dialog = Dialog(UIModel = 'D:\\Projects\\pathfinder\\gui\\dialog.ui')
         dialog.exec()
         selections = dialog.checkedExt
-        associations = self.parser.readRawOption(self.configFile, "TRACKLIST", destination)
+        associations = self.configManager.readRawOption("TRACKLIST", destination)
 
         for ext in selections:
             associations = associations + " " + ext
 
-        self.parser.writeRawOption(self.configFile, "TRACKLIST", destination, associations)
+        self.configManager.writeRawOption("TRACKLIST", destination, associations)
         self.destUI()
 
 class Dialog(Window, QDialog):
@@ -232,7 +209,6 @@ class Dialog(Window, QDialog):
         for pool in dict.values():
             if value in pool:
                 return True
-        
         return False
 
     def dialogUI(self):

@@ -15,7 +15,7 @@
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">
-    <widget class="QRadioButton" name="extButton">
+    <widget class="QRadioButton" name="textEdit">
      <property name="font">
       <font>
        <pointsize>9</pointsize>

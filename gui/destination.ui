@@ -162,6 +162,7 @@ padding: 10px;
         </property>
         <property name="font">
          <font>
+          <pointsize>8</pointsize>
           <weight>75</weight>
           <bold>true</bold>
          </font>
@@ -194,10 +195,11 @@ QComboBox QAbstractItemView {
     border: 1px solid rgba(39, 180, 255, 255);
     selection-background-color:  rgb(36, 42, 59);
     color: rgb(255, 255, 255);
-    min-width: 100px;
+    min-width: 150px;
     border-radius: 5px;
 	padding: 5px;
 }
+
 </string>
         </property>
         <property name="editable">
