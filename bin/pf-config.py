@@ -20,7 +20,7 @@ class Window():
         self.scrollLayout.setHorizontalSpacing(12)
 
     def setStructs(self):
-        self.tracklist, self.sources, self.extensions, self.destinations = self.configManager.loadConfig()
+        self.sources, self.extensions, self.destinations, self.tracklist = self.configManager.loadConfig()
 
     def clearLayout(self, layout) -> None:
         for i in reversed(range(layout.count())):
@@ -87,7 +87,7 @@ class MainWindow(Window, QMainWindow):
         widget.textEdit.setReadOnly(False)
         widget.textEdit.setFocus()
         widget.textEdit.setValidator(QRegExpValidator(QRegExp(r'^\.[a-zA-Z0-9]+$'), self))
-        widget.textEdit.editingFinished.connect(lambda: self.editLayoutItem(widget.textEdit.text()))
+        widget.textEdit.editingFinished.connect(self.editLayoutItem)
 
     @QtCore.Slot()
     def sourceUI(self) -> None:
@@ -97,8 +97,8 @@ class MainWindow(Window, QMainWindow):
         self.sourceButton.setChecked(True)
         layoutContent = self.fillLayout(self.scrollLayout, self.sources, 'D:\\Projects\\pathfinder\\gui\\source.ui')
         for widget in layoutContent:
-            widget.editButton.clicked.connect(lambda: self.editLayoutItem(widget.textEdit.text()))
-            widget.deleteButton.clicked.connect(lambda: self.removeLayoutItem(widget.textEdit.text()))
+            widget.editButton.clicked.connect(self.editLayoutItem)
+            widget.deleteButton.clicked.connect(self.removeLayoutItem)
                     
     @QtCore.Slot()
     def extUI(self) -> None:
@@ -108,7 +108,7 @@ class MainWindow(Window, QMainWindow):
         self.extButton.setChecked(True)
         layoutContent = self.fillLayout(self.scrollLayout, self.extensions, 'D:\\Projects\\pathfinder\\gui\\extension.ui', gridAlignment = True)
         for widget in layoutContent:
-            widget.deleteButton.clicked.connect(lambda: self.removeLayoutItem(widget.textEdit.text()))
+            widget.deleteButton.clicked.connect(self.removeLayoutItem)
 
             if widget.textEdit.text() == ".":
                 self.makeExtEditable(widget)
@@ -124,8 +124,8 @@ class MainWindow(Window, QMainWindow):
         layoutContent = self.fillLayout(self.scrollLayout, self.destinations, 'D:\\Projects\\pathfinder\\gui\\destination.ui')
         for widget in layoutContent:
             widget.extButton.clicked.connect(lambda: self.connectExtension(widget.textEdit.text()))
-            widget.editButton.clicked.connect(lambda: self.editLayoutItem(widget.textEdit.text()))
-            widget.deleteButton.clicked.connect(lambda: self.removeLayoutItem(widget.textEdit.text()))
+            widget.editButton.clicked.connect(self.editLayoutItem)
+            widget.deleteButton.clicked.connect(self.removeLayoutItem)
 
             for ext in self.tracklist[widget.textEdit.text()]:
                 widget.extComboBox.addItem(ext)
@@ -154,7 +154,8 @@ class MainWindow(Window, QMainWindow):
             self.destUI()
 
     @QtCore.Slot()
-    def editLayoutItem(self, item: str) -> None:
+    def editLayoutItem(self) -> None:
+        item = self.sender().parent().parent().textEdit.text()
         if self.focus == 0:
             self.configManager.editConfig(self.focus, "TRACKED", "sources", item)
             self.sourceUI()
@@ -166,7 +167,8 @@ class MainWindow(Window, QMainWindow):
             self.destUI()
 
     @QtCore.Slot()
-    def removeLayoutItem(self, item: str) -> None:
+    def removeLayoutItem(self) -> None:
+        item = self.sender().parent().parent().textEdit.text()
         if self.focus == 0:
             self.configManager.removeFromConfig(self.focus, "TRACKED", "sources", item)
             self.sourceUI()
@@ -185,7 +187,7 @@ class MainWindow(Window, QMainWindow):
         associations = self.configManager.readRawOption("TRACKLIST", destination)
 
         for ext in selections:
-            associations = associations + " " + ext
+            associations = associations + "|" + ext
 
         self.configManager.writeRawOption("TRACKLIST", destination, associations)
         self.destUI()

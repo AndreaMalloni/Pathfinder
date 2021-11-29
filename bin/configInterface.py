@@ -1,5 +1,6 @@
 import configparser
 from tkinter import filedialog, Tk
+from tkinter.constants import N
 
 class DataParser():
     def __init__(self, file) -> None:
@@ -10,19 +11,20 @@ class DataParser():
         self.parser.read(file)
 
     def loadConfig(self):
+        self.parser.read(self.configFile)
         tracklist = {}
 
-        sources = list(self.parser.get("TRACKED", "sources").split(" "))
-        extensions = list(self.parser.get("TRACKED", "extensions").split(" "))
-        destinations = list(self.parser.get("TRACKED", "destinations").split(" "))
+        sources = list(self.parser.get("TRACKED", "sources").split("|"))
+        extensions = list(self.parser.get("TRACKED", "extensions").split("|"))
+        destinations = list(self.parser.get("TRACKED", "destinations").split("|"))
 
         for key in self.parser["TRACKLIST"]:
-            tracklist[key] = list(self.parser["TRACKLIST"][key].split(" "))
+            tracklist[key] = list(self.parser["TRACKLIST"][key].split("|"))
 
-        return (tracklist, 
-                sources if '' not in sources else [], 
+        return (sources if '' not in sources else [], 
                 extensions if '' not in extensions else [], 
-                destinations if '' not in destinations else [])
+                destinations if '' not in destinations else [],
+                tracklist)
 
     def readRawOption(self, section, key):
         return self.parser.get(section, key)
@@ -31,11 +33,28 @@ class DataParser():
         self.parser.set(section, key, value)
         self.saveConfig()
 
-    def writeRawKey(self, section, key, newKey = ""):
-        for oldKey in self.parser[section]:
-            if oldKey == key:
+    def getOptionItemIndex(self, focus, option, item):
+        parsedOption = self.loadConfig()[focus]
+        parsedIndex = parsedOption.index(item)
+        return self.findOccurrence(option, "|", parsedIndex)
+
+    def addKey(self, section, newKey):
+        self.parser[section][newKey] = ""
+        self.saveConfig()
+
+    def removeKey(self, section, oldKey):
+        for key in self.parser[section]:
+            if key == oldKey:
                 self.parser.remove_option(section, key)
-                break
+        self.saveConfig()
+
+    def editKey(self, section, oldKey, newKey):
+        for key in self.parser[section]:
+            if key == oldKey:
+                value = self.readRawOption(section, key)
+                self.parser.remove_option(section, key)
+                self.parser[section][newKey] = value
+
         self.saveConfig()
 
     def saveConfig(self):
@@ -47,41 +66,47 @@ class ConfigManager(DataParser):
         DataParser.__init__(self, file)
         
     def addToConfig(self, focus: int, section, key) -> None:
-        option = self.readRawOption(section, key)
-        newOption = option
+        rawOption = self.readRawOption(section, key)
+        newOption = rawOption
 
         if focus == 0 or focus == 2: 
             dir = self.getPath()
-            newOption = option + " " + dir if len(option) > 0 else option + dir  
+            newOption = rawOption + "|" + dir if len(rawOption) > 0 else rawOption + dir  
         elif focus == 1:
-            newOption = option + " " + "." if len(option) > 0 else option + "."
+            newOption = rawOption + "|" + "." if len(rawOption) > 0 else rawOption + "."
         if focus == 2:
-            self.writeRawOption(section, dir)
+            self.addKey("TRACKLIST", dir)
 
         self.writeRawOption(section, key, newOption)
 
     def editConfig(self, focus: int, section, key, value) -> None:
-        option = self.readRawOption(section, key)
+        rawOption = self.readRawOption(section, key)
+        rawIndex = self.getOptionItemIndex(focus, rawOption, value)
 
         if focus == 0 or focus == 2:
             dir = self.getPath()
 
             if dir != "":
-                self.writeRawOption(section, key, option.replace(value, dir))
+                newItem = "|" + dir if rawIndex > 0 else dir + "|"
+                newOption = rawOption[:rawIndex] + newItem + rawOption[rawIndex + len(value) + 1:]
+                self.writeRawOption(section, key, newOption)
+
+                if focus == 2:
+                    self.editKey("TRACKLIST", value, dir)
+
         elif focus == 1:
-            self.writeRawOption(section, key, value.join(option.rsplit(".", 1)))
-        if focus == 2:
-            pass
-        '''replace old key in tracklist'''
+            self.writeRawOption(section, key, value.join(rawOption.rsplit(".", 1)))
 
     def removeFromConfig(self, focus: int, section, key, value) -> None:
-        option = self.readRawOption(section, key)
-        itemToRemove = " " + value if len(option) > 0 else value
-        self.writeRawOption(section, key, option.replace(itemToRemove, ""))
-        #self.writeRawOption(section, key, self.readRawOption(section, key)[:-(len(value) + 1)])
+        rawOption = self.readRawOption(section, key)
+        rawIndex = self.getOptionItemIndex(focus, rawOption, value)
+
+        newOption = rawOption[:rawIndex] + rawOption[rawIndex + len(value) + 1:]
+
+        self.writeRawOption(section, key, newOption)
 
         if focus == 2:
-            self.parser.writeRawKey(section, value)
+            self.removeKey("TRACKLIST", value)
 
     def getPath(self):
         root = Tk()
@@ -89,3 +114,11 @@ class ConfigManager(DataParser):
 
         dir = filedialog.askdirectory()
         return dir.replace("/", "\\")
+
+    def findOccurrence(self, string, substring, n):
+        if n == 0: return 0
+        start = string.find(substring)
+        while start >= 0 and n > 1:
+            start = string.find(substring, start+len(substring))
+            n -= 1
+        return start

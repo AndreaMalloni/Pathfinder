@@ -7,10 +7,10 @@ from configInterface import ConfigManager
 
 class PathFinder():
     def __init__(self, file) -> None:
-        self.tracklist, self.sources, self.extensions, self.destinations = self.configManager.loadConfig()
         self.configManager = ConfigManager(file)
         self.event_handler = Handler(self.tracklist)
         self.observer = Observer()
+        self.sources, self.extensions, self.destinations, self.tracklist = self.configManager.loadConfig()
 
     def startupFiltering(self):
         try:
