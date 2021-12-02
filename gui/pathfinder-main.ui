@@ -19,7 +19,7 @@
    </iconset>
   </property>
   <property name="windowOpacity">
-   <double>0.999999000000000</double>
+   <double>0.990000000000000</double>
   </property>
   <property name="styleSheet">
    <string notr="true">background-color: rgb(26, 32, 50);</string>
