@@ -123,7 +123,7 @@ class MainWindow(Window, QMainWindow):
 
         layoutContent = self.fillLayout(self.scrollLayout, self.destinations, 'D:\\Projects\\pathfinder\\gui\\destination.ui')
         for widget in layoutContent:
-            widget.extButton.clicked.connect(lambda: self.connectExtension(widget.textEdit.text()))
+            widget.extButton.clicked.connect(self.connectExtension)
             widget.editButton.clicked.connect(self.editLayoutItem)
             widget.deleteButton.clicked.connect(self.removeLayoutItem)
 
@@ -180,9 +180,10 @@ class MainWindow(Window, QMainWindow):
             self.destUI()
 
     @QtCore.Slot()
-    def connectExtension(self, destination: str):
+    def connectExtension(self):
         dialog = Dialog(UIModel = 'D:\\Projects\\pathfinder\\gui\\dialog.ui')
         dialog.exec()
+        destination = self.sender().parent().parent().textEdit.text()
         selections = dialog.checkedExt
         associations = self.configManager.readRawOption("TRACKLIST", destination)
 
@@ -199,6 +200,7 @@ class Dialog(Window, QDialog):
 
         self.setFixedSize(500, 300)
         self.setStructs()
+        self.availableExt = []
         self.dialogUI()
 
         self.buttonBox.accepted.connect(self.accept)
@@ -215,16 +217,16 @@ class Dialog(Window, QDialog):
 
     def dialogUI(self):
         for ext in self.extensions:
-            if self.existIn(ext, self.tracklist) == True:
-                self.extensions.remove(ext)
+            if not self.existIn(ext, self.tracklist):
+                self.availableExt.append(ext)
                 
-        self.fillLayout(self.scrollLayout, self.extensions, 'D:\\Projects\\pathfinder\\gui\\ext-choice.ui', gridAlignment = True)
+        self.fillLayout(self.scrollLayout, self.availableExt, 'D:\\Projects\\pathfinder\\gui\\ext-choice.ui', gridAlignment = True)
 
     def accept(self) -> None:
         for i in reversed(range(self.scrollLayout.count())):
             widget = self.scrollLayout.itemAt(i).widget()
-            if widget.extButton.isChecked():
-                self.checkedExt.append(widget.extButton.text())
+            if widget.textEdit.isChecked():
+                self.checkedExt.append(widget.textEdit.text())
                 
         return super().accept()
     

@@ -8,9 +8,9 @@ from configInterface import ConfigManager
 class PathFinder():
     def __init__(self, file) -> None:
         self.configManager = ConfigManager(file)
+        self.sources, self.extensions, self.destinations, self.tracklist = self.configManager.loadConfig()
         self.event_handler = Handler(self.tracklist)
         self.observer = Observer()
-        self.sources, self.extensions, self.destinations, self.tracklist = self.configManager.loadConfig()
 
     def startupFiltering(self):
         try:
@@ -20,7 +20,7 @@ class PathFinder():
                     if not os.path.exists(path):
                         os.mkdir(path)
             for source_path in self.sources:
-                filter(source_path)
+                self.event_handler.filter(source_path)
             return True
         except:
             return False
@@ -32,6 +32,7 @@ class PathFinder():
     def run(self):
         if self.startupFiltering():
             self.setupSchedule()
+            self.observer.start()
             try:
                 while True:
                     time.sleep(1)
@@ -78,21 +79,29 @@ class Handler(FileSystemEventHandler):
     def filter(self, dir_path):
         for file in os.listdir(dir_path):
             file_path = os.path.join(dir_path, file)
-            if os.path.isfile(file_path):
-                self.dispatch(file_path)
+            file_extension = os.path.splitext(file)[1]
+            if os.path.isfile(file_path) and self.isTracked(file_extension):
+                self.changeLocation(file_path)
 
-    def dispatch(self, file):
-        filename, file_extension = os.path.splitext(file)
+    def isTracked(self, file_extension):
+        isTracked = False
+        for destination in self.tracklist:
+            if file_extension in self.tracklist[destination]: isTracked = True
+        return isTracked
+
+    def changeLocation(self, file):
+        file_extension = os.path.splitext(file)[1]
+        filename = os.path.split(file)[1]
         for destination in self.tracklist:
             if file_extension in self.tracklist[destination]:
-                new_path = destination + "\{E}".format(E = file_extension.upper()[1:]) + "\{F}".format(F = file)
+                new_path = destination + "\{E}".format(E = file_extension.upper()[1:]) + "\{F}".format(F = filename)
                 if os.path.exists(new_path):
                     new_path = self.renameDuplicates(new_path)
                 os.rename(file, new_path)
 
     def renameDuplicates(self, file):
         copies = 1
-        filename, file_extension = os.path.splitext(file)
+        file_extension = os.path.splitext(file)[1]
         file = file[:-len(file_extension)]
         file = file + " ({C})".format(C = copies) + file_extension
         while(os.path.exists(file)):
@@ -106,4 +115,3 @@ class Handler(FileSystemEventHandler):
 if __name__ == '__main__':
     pathfinder = PathFinder("data.ini")
     pathfinder.run()
-    sys.exit()

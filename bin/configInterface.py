@@ -71,7 +71,8 @@ class ConfigManager(DataParser):
 
         if focus == 0 or focus == 2: 
             dir = self.getPath()
-            newOption = rawOption + "|" + dir if len(rawOption) > 0 else rawOption + dir  
+            if dir != "":
+                newOption = rawOption + "|" + dir if len(rawOption) > 0 else rawOption + dir  
         elif focus == 1:
             newOption = rawOption + "|" + "." if len(rawOption) > 0 else rawOption + "."
         if focus == 2:
@@ -81,9 +82,9 @@ class ConfigManager(DataParser):
 
     def editConfig(self, focus: int, section, key, value) -> None:
         rawOption = self.readRawOption(section, key)
-        rawIndex = self.getOptionItemIndex(focus, rawOption, value)
 
         if focus == 0 or focus == 2:
+            rawIndex = self.getOptionItemIndex(focus, rawOption, value)
             dir = self.getPath()
 
             if dir != "":
@@ -95,7 +96,7 @@ class ConfigManager(DataParser):
                     self.editKey("TRACKLIST", value, dir)
 
         elif focus == 1:
-            self.writeRawOption(section, key, value.join(rawOption.rsplit(".", 1)))
+            self.writeRawOption(section, key, rawOption.rsplit(".", 1)[0] + value)
 
     def removeFromConfig(self, focus: int, section, key, value) -> None:
         rawOption = self.readRawOption(section, key)
