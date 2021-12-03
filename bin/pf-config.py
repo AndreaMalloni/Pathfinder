@@ -56,8 +56,6 @@ class MainWindow(Window, QMainWindow):
         Window.__init__(self, UIModel)
 
         self.setFixedSize(800, 500)
-
-        self.sourceUI()
         
         self.sourceButton.clicked.connect(self.sourceUI)
         self.extButton.clicked.connect(self.extUI)
@@ -65,6 +63,7 @@ class MainWindow(Window, QMainWindow):
         self.infoButton.clicked.connect(self.infoUI)
         self.addButton.clicked.connect(self.newLayoutItem)
 
+        self.sourceUI()
         self.show()
 
     def initSectionUI(self, focus=0, labelText="") -> None:
@@ -95,7 +94,7 @@ class MainWindow(Window, QMainWindow):
         self.initSectionUI(labelText=text)
 
         self.sourceButton.setChecked(True)
-        layoutContent = self.fillLayout(self.scrollLayout, self.sources, 'D:\\Projects\\pathfinder\\gui\\source.ui')
+        layoutContent = self.fillLayout(self.scrollLayout, self.sources, 'gui\\source.ui')
         for widget in layoutContent:
             widget.editButton.clicked.connect(self.editLayoutItem)
             widget.deleteButton.clicked.connect(self.removeLayoutItem)
@@ -106,7 +105,7 @@ class MainWindow(Window, QMainWindow):
         self.initSectionUI(focus = 1, labelText = text)
 
         self.extButton.setChecked(True)
-        layoutContent = self.fillLayout(self.scrollLayout, self.extensions, 'D:\\Projects\\pathfinder\\gui\\extension.ui', gridAlignment = True)
+        layoutContent = self.fillLayout(self.scrollLayout, self.extensions, 'gui\\extension.ui', gridAlignment = True)
         for widget in layoutContent:
             widget.deleteButton.clicked.connect(self.removeLayoutItem)
 
@@ -121,7 +120,7 @@ class MainWindow(Window, QMainWindow):
         
         self.destButton.setChecked(True)
 
-        layoutContent = self.fillLayout(self.scrollLayout, self.destinations, 'D:\\Projects\\pathfinder\\gui\\destination.ui')
+        layoutContent = self.fillLayout(self.scrollLayout, self.destinations, 'gui\\destination.ui')
         for widget in layoutContent:
             widget.extButton.clicked.connect(self.connectExtension)
             widget.editButton.clicked.connect(self.editLayoutItem)
@@ -138,7 +137,7 @@ class MainWindow(Window, QMainWindow):
         self.initSectionUI(focus = 3, labelText = text)
 
         self.infoButton.setChecked(True)
-        widget = loadUi('D:\\Projects\\pathfinder\\gui\\info.ui')
+        widget = loadUi('gui\\info.ui')
         self.scrollLayout.addWidget(widget)
         
     @QtCore.Slot()
@@ -181,7 +180,7 @@ class MainWindow(Window, QMainWindow):
 
     @QtCore.Slot()
     def connectExtension(self):
-        dialog = Dialog(UIModel = 'D:\\Projects\\pathfinder\\gui\\dialog.ui')
+        dialog = Dialog(UIModel = 'gui\\dialog.ui')
         dialog.exec()
         destination = self.sender().parent().parent().textEdit.text()
         selections = dialog.checkedExt
@@ -220,7 +219,7 @@ class Dialog(Window, QDialog):
             if not self.existIn(ext, self.tracklist):
                 self.availableExt.append(ext)
                 
-        self.fillLayout(self.scrollLayout, self.availableExt, 'D:\\Projects\\pathfinder\\gui\\ext-choice.ui', gridAlignment = True)
+        self.fillLayout(self.scrollLayout, self.availableExt, 'gui\\ext-choice.ui', gridAlignment = True)
 
     def accept(self) -> None:
         for i in reversed(range(self.scrollLayout.count())):
@@ -236,5 +235,5 @@ class Dialog(Window, QDialog):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    window = MainWindow(UIModel = 'D:\\Projects\\pathfinder\\gui\\pathfinder-main.ui')
+    window = MainWindow(UIModel = 'gui\\pathfinder-main.ui')
     sys.exit(app.exec_())
