@@ -545,7 +545,7 @@ background-color: rgb(47, 55, 77);
              <string notr="true">QPushButton
 {
 color: rgb(255, 255, 255);
-border-radius: 5px;
+border-radius: 10px;
 text-align: left;
 padding: 10px;
 }
@@ -553,7 +553,7 @@ padding: 10px;
 QPushButton:hover
 {
 color: rgb(255, 255, 255);
-border-radius: 5px;
+border-radius: 10px;
 text-align: left;
 padding: 10px;
 background-color: rgb(36, 42, 59);
