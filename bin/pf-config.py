@@ -139,6 +139,7 @@ class MainWindow(Window, QMainWindow):
         self.infoButton.setChecked(True)
         widget = loadUi('gui\\info.ui')
         self.scrollLayout.addWidget(widget)
+        self.addButton.setDisabled(True)
         
     @QtCore.Slot()
     def newLayoutItem(self) -> None:

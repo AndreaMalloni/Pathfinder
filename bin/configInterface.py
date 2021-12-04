@@ -85,10 +85,12 @@ class ConfigManager(DataParser):
 
         if focus == 0 or focus == 2:
             rawIndex = self.getOptionItemIndex(focus, rawOption, value)
+            parsedOption = self.loadConfig()[focus]
             dir = self.getPath()
 
             if dir != "":
                 newItem = "|" + dir if rawIndex > 0 else dir + "|"
+                if len(parsedOption) == 1: newItem = dir 
                 newOption = rawOption[:rawIndex] + newItem + rawOption[rawIndex + len(value) + 1:]
                 self.writeRawOption(section, key, newOption)
 
