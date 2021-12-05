@@ -73,10 +73,10 @@ class ConfigManager(DataParser):
             dir = self.getPath()
             if dir != "":
                 newOption = rawOption + "|" + dir if len(rawOption) > 0 else rawOption + dir  
+                if focus == 2:
+                    self.addKey("TRACKLIST", dir)
         elif focus == 1:
             newOption = rawOption + "|" + "." if len(rawOption) > 0 else rawOption + "."
-        if focus == 2:
-            self.addKey("TRACKLIST", dir)
 
         self.writeRawOption(section, key, newOption)
 
