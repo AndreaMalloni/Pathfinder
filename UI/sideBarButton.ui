@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Form</class>
+ <widget class="QWidget" name="Form">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>168</width>
+    <height>301</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <widget class="QPushButton" name="sideBarButton">
+   <property name="geometry">
+    <rect>
+     <x>9</x>
+     <y>125</y>
+     <width>150</width>
+     <height>50</height>
+    </rect>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>150</width>
+     <height>50</height>
+    </size>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>16777215</width>
+     <height>16777215</height>
+    </size>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>11</pointsize>
+     <weight>75</weight>
+     <bold>true</bold>
+    </font>
+   </property>
+   <property name="toolTip">
+    <string>Tracked folders</string>
+   </property>
+   <property name="toolTipDuration">
+    <number>-1</number>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QPushButton
+{
+color: rgb(255, 255, 255);
+background-color: rgb(26, 32, 50);
+border-radius: 10px;
+text-align: left;
+padding: 10px;
+}
+
+QPushButton:hover
+{
+color: rgb(255, 255, 255);
+border-radius: 10px;
+text-align: left;
+padding: 10px;
+background-color: rgb(36, 42, 59);
+}
+
+QPushButton:checked
+{
+color: rgb(255, 255, 255);
+border-radius: 10px;
+text-align: left;
+padding: 10px;
+	background-color: rgb(47, 55, 77);
+}
+</string>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+   <property name="icon">
+    <iconset>
+     <activeoff>:/icons/images/folder.ico</activeoff>
+    </iconset>
+   </property>
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>false</bool>
+   </property>
+   <property name="flat">
+    <bool>true</bool>
+   </property>
+   <property name="color" stdset="0">
+    <color>
+     <red>26</red>
+     <green>32</green>
+     <blue>50</blue>
+    </color>
+   </property>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
