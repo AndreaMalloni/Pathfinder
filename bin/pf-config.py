@@ -12,7 +12,7 @@ from widgets import SourceWidget, ExtensionWidget, DestinationWidget
 class Window(QMainWindow):
     def __init__(self, UIModel: str) -> None:
         super().__init__()
-        self.configManager = ConfigManager(r"D:\Projects\pathfinder\data.ini")
+        self.configManager = ConfigManager("data.ini")
         self.scrollLayout =  QGridLayout(Alignment = QtCore.Qt.AlignTop)
 
         loadUi(UIModel, self)
@@ -67,7 +67,7 @@ class MainWindow(Window, QMainWindow):
     def buildSourceWidgets(self, labels: list[str]) -> list[object]:
         widgets = []
         for label in labels:
-            widget = SourceWidget(r'D:\Projects\pathfinder\UI\sourceWidget.ui', label)
+            widget = SourceWidget('UI\\sourceWidget.ui', label)
             widget.connectButtons(self.editLayoutWidget, self.removeLayoutWidget)
             widgets.append(widget)
         return widgets
@@ -75,7 +75,7 @@ class MainWindow(Window, QMainWindow):
     def buildExtensionWidgets(self, labels: list[str]) -> list[object]:
         widgets = []
         for label in labels:
-            widget = ExtensionWidget(r'D:\Projects\pathfinder\UI\extensionWidget.ui', label)
+            widget = ExtensionWidget('UI\\extensionWidget.ui', label)
             widget.connectButtons(self.removeLayoutWidget)
             widgets.append(widget)
         return widgets
@@ -83,7 +83,7 @@ class MainWindow(Window, QMainWindow):
     def buildDestinationWidgets(self, labels: list[str]) -> list[object]:
         widgets = []
         for label in labels:
-            widget = DestinationWidget(r'D:\Projects\pathfinder\UI\destinationWidget.ui', label)
+            widget = DestinationWidget('UI\\destinationWidget.ui', label)
             widget.connectButtons(self.linkExtension, self.editLayoutWidget, self.removeLayoutWidget)
             widgets.append(widget)
         return widgets
@@ -147,7 +147,7 @@ class MainWindow(Window, QMainWindow):
         self.initTabUI(focus = 3, labelText = text)
 
         self.infoButton.setChecked(True)
-        widget = loadUi(r'D:\Projects\pathfinder\UI\info.ui')
+        widget = loadUi('UI\\info.ui')
         self.scrollLayout.addWidget(widget)
         self.addButton.setDisabled(True)
         
@@ -191,7 +191,7 @@ class MainWindow(Window, QMainWindow):
 
     @QtCore.Slot()
     def linkExtension(self) -> None:
-        dialog = Dialog(UIModel = r'D:\Projects\pathfinder\UI\dialog.ui')
+        dialog = Dialog(UIModel = 'UI\\dialog.ui')
         dialog.exec()
         destination = self.sender().parent().parent().textEdit.text()
         selections = dialog.checkedExt
@@ -231,7 +231,7 @@ class Dialog(Window, QDialog):
             if not self.existIn(ext, self.tracklist):
                 self.availableExt.append(ext)
                 
-        self.fillLayout(self.scrollLayout, self.availableExt, r'D:\Projects\pathfinder\UI\ext-choice.ui', gridAlignment = True)
+        self.fillLayout(self.scrollLayout, self.availableExt, 'UI\\ext-choice.ui', gridAlignment = True)
 
     def accept(self) -> None:
         for i in reversed(range(self.scrollLayout.count())):
@@ -247,5 +247,5 @@ class Dialog(Window, QDialog):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    window = MainWindow(UIModel = r'D:\Projects\pathfinder\UI\pathfinder-main.ui')
+    window = MainWindow(UIModel = 'UI\\pathfinder-main.ui')
     sys.exit(app.exec_())
