@@ -1,65 +1,65 @@
 import sys
 import os.path
 import time
+import logging
 from watchdog.observers import Observer
-from watchdog.events import FileCreatedEvent, FileDeletedEvent, FileModifiedEvent, FileMovedEvent, FileSystemEventHandler
+from watchdog.events import FileCreatedEvent, FileModifiedEvent, FileMovedEvent, FileSystemEventHandler, LoggingEventHandler
 from configInterface import ConfigManager
 
 class PathFinder():
-    def __init__(self, file) -> None:
-        self.configManager = ConfigManager(file)
-        self.sources, self.extensions, self.destinations, self.tracklist = self.configManager.loadConfig()
+    def __init__(self) -> None:
+        global configManager
+        self.sources, self.extensions, self.destinations, self.tracklist = configManager.loadConfig()
         self.event_handler = Handler(self.tracklist)
+        self.log_handler = LoggingEventHandler()
         self.observer = Observer()
+        self.logger = Observer()
 
-    def startupFiltering(self):
+    def setupDestinationFolders(self):
         try:
             for source in self.tracklist.keys():
                 for file_extension in self.tracklist[source]:
                     path = source + "\{E}".format(E = file_extension.upper()[1:])
                     if not os.path.exists(path):
                         os.mkdir(path)
-            for source_path in self.sources:
-                self.event_handler.filter(source_path)
             return True
         except:
             return False
 
-    def setupSchedule(self):
+    def setupObserversSchedule(self):
         for path in self.sources:
             self.observer.schedule(self.event_handler, path)
+            self.logger.schedule(self.log_handler, path)
 
     def run(self):
-        if self.startupFiltering():
-            self.setupSchedule()
+        if self.setupDestinationFolders():
+            self.setupObserversSchedule()
+            
             self.observer.start()
+            self.logger.start()
             try:
                 while True:
                     time.sleep(1)
             except KeyboardInterrupt:
                 self.stop()
         else:
+            print("failed")
             sys.exit()
 
     def stop(self):
         self.observer.unschedule_all()
+        self.logger.unschedule_all()
+
         self.observer.stop()
+        self.logger.stop()
+
         self.observer.join()
+        self.logger.join()
 
 class Handler(FileSystemEventHandler):
     def __init__(self, tracklist) -> None:
         super().__init__()
         self.tracklist = tracklist
-
-    def on_any_event(self, event) -> None:
-        print("----------- New Event ------------")
-        print("Type: " + event.event_type)
-        print("File: " + event.src_path)
-        print("Created event:" + str(isinstance(event, FileCreatedEvent)))
-        print("Moved event:" + str(isinstance(event, FileMovedEvent)))
-        print("Modified event:" + str(isinstance(event, FileModifiedEvent)))
-        print("Deleted event:" + str(isinstance(event, FileDeletedEvent)))
-        print("----------------------------------\n")
 
     def on_created(self, event) -> None:
         if isinstance(event, FileCreatedEvent):
@@ -113,5 +113,10 @@ class Handler(FileSystemEventHandler):
         return file
 
 if __name__ == '__main__':
-    pathfinder = PathFinder("data.ini")
+    logging.basicConfig(level=logging.INFO,
+                        format='%(asctime)s - %(message)s',
+                        datefmt='%Y-%m-%d %H:%M:%S')
+
+    configManager = ConfigManager("data.ini")
+    pathfinder = PathFinder()
     pathfinder.run()
