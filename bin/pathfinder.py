@@ -9,16 +9,17 @@ from configInterface import ConfigManager
 class PathFinder():
     def __init__(self) -> None:
         global configManager
-        self.sources, self.extensions, self.destinations, self.tracklist = configManager.loadConfig()
-        self.event_handler = Handler(self.tracklist)
+        
+        self.event_handler = Handler()
         self.log_handler = LoggingEventHandler()
         self.observer = Observer()
         self.logger = Observer()
 
     def setupDestinationFolders(self):
         try:
-            for source in self.tracklist.keys():
-                for file_extension in self.tracklist[source]:
+            tracklist = configManager.loadConfig()[3]
+            for source in tracklist.keys():
+                for file_extension in tracklist[source]:
                     path = source + "\{E}".format(E = file_extension.upper()[1:])
                     if not os.path.exists(path):
                         os.mkdir(path)
@@ -27,39 +28,44 @@ class PathFinder():
             return False
 
     def setupObserversSchedule(self):
-        for path in self.sources:
+        self.observer.unschedule_all()
+        self.logger.unschedule_all()
+        for path in configManager.loadConfig()[0]:
             self.observer.schedule(self.event_handler, path)
             self.logger.schedule(self.log_handler, path)
 
-    def run(self):
-        if self.setupDestinationFolders():
-            self.setupObserversSchedule()
-            
-            self.observer.start()
-            self.logger.start()
-            try:
-                while True:
-                    time.sleep(1)
-            except KeyboardInterrupt:
-                self.stop()
-        else:
-            print("failed")
-            sys.exit()
+    def startTracking(self):
+        self.setupDestinationFolders()
+        self.setupObserversSchedule()
 
-    def stop(self):
+        self.observer.start()
+        self.logger.start()
+
+    def stopTracking(self):
         self.observer.unschedule_all()
         self.logger.unschedule_all()
 
         self.observer.stop()
         self.logger.stop()
 
-        self.observer.join()
-        self.logger.join()
+    def run(self):
+        try:
+            self.startTracking()
+            while True:
+                if configManager.hasChanged():
+                    self.setupDestinationFolders()
+                    self.setupObserversSchedule()
+                time.sleep(1)
+        except KeyboardInterrupt:
+            self.stopTracking()
+            self.observer.join()
+            self.logger.join()
+            sys.exit()
 
 class Handler(FileSystemEventHandler):
-    def __init__(self, tracklist) -> None:
+    def __init__(self) -> None:
         super().__init__()
-        self.tracklist = tracklist
+        global configManager
 
     def on_created(self, event) -> None:
         if isinstance(event, FileCreatedEvent):
@@ -85,21 +91,23 @@ class Handler(FileSystemEventHandler):
 
     def isTracked(self, file_extension):
         isTracked = False
-        for destination in self.tracklist:
-            if file_extension in self.tracklist[destination]: isTracked = True
+        tracklist = configManager.loadConfig()[3]
+        for destination in tracklist:
+            if file_extension in tracklist[destination]: isTracked = True
         return isTracked
 
     def changeLocation(self, file):
         file_extension = os.path.splitext(file)[1]
         filename = os.path.split(file)[1]
-        for destination in self.tracklist:
-            if file_extension in self.tracklist[destination]:
+        tracklist = configManager.loadConfig()[3]
+        for destination in tracklist:
+            if file_extension in tracklist[destination]:
                 new_path = destination + "\{E}".format(E = file_extension.upper()[1:]) + "\{F}".format(F = filename)
                 if os.path.exists(new_path):
-                    new_path = self.renameDuplicates(new_path)
+                    new_path = self.renameDuplicate(new_path)
                 os.rename(file, new_path)
 
-    def renameDuplicates(self, file):
+    def renameDuplicate(self, file):
         copies = 1
         file_extension = os.path.splitext(file)[1]
         file = file[:-len(file_extension)]
@@ -113,9 +121,7 @@ class Handler(FileSystemEventHandler):
         return file
 
 if __name__ == '__main__':
-    logging.basicConfig(level=logging.INFO,
-                        format='%(asctime)s - %(message)s',
-                        datefmt='%Y-%m-%d %H:%M:%S')
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
 
     configManager = ConfigManager("data.ini")
     pathfinder = PathFinder()
