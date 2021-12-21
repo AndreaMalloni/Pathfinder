@@ -1,57 +1,40 @@
 import sys
-import platform
-from PySide2 import QtCore, QtGui, QtWidgets
-from PySide2.QtCore import (QCoreApplication, QPropertyAnimation, QDate, QDateTime, QMetaObject, QObject, QPoint, QRect, QSize, QTime, QUrl, Qt, QEvent, QRegExp)
-from PySide2.QtGui import (QBrush, QColor, QConicalGradient, QCursor, QFont, QFontDatabase, QIcon, QKeySequence, QLinearGradient, QPalette, QPainter, QPixmap, QRadialGradient, QRegExpValidator)
+from PySide2 import QtCore
 from PySide2.QtWidgets import *
 from pyside_dynamic import *
 from resources import *
 from configInterface import ConfigManager
-from widgets import SourceWidget, ExtensionWidget, DestinationWidget
+from serviceinterface import ServiceManager
+from widgets import SourceWidget, ExtensionWidget, DestinationWidget, LayoutWidget
 
-class Window(QMainWindow):
+class DefaultLayoutWindow():
     def __init__(self, UIModel: str) -> None:
-        super().__init__()
-        self.configManager = ConfigManager("data.ini")
-        self.scrollLayout =  QGridLayout(Alignment = QtCore.Qt.AlignTop)
-
         loadUi(UIModel, self)
+
+        self.scrollLayout =  QGridLayout() 
         self.scrollAreaContent.setLayout(self.scrollLayout)
         self.scrollLayout.setHorizontalSpacing(12)
-
-    def setStructs(self):
-        self.sources, self.extensions, self.destinations, self.tracklist = self.configManager.loadConfig()
-
-
-class MainWindow(Window, QMainWindow):
-    def __init__(self, UIModel, parent=None):
-        super().__init__(UIModel)
-
-        self.setFixedSize(800, 500)
-        
-        self.sourceButton.clicked.connect(self.generateSourceUI)
-        self.extButton.clicked.connect(self.generateExtUI)
-        self.destButton.clicked.connect(self.generateDestUI)
-        self.infoButton.clicked.connect(self.generateInfoUI)
-        self.addButton.clicked.connect(self.newLayoutWidget)
-
-        self.generateSourceUI()
-        self.show()
 
     def clearLayout(self, layout: QLayout) -> None:
         for i in reversed(range(layout.count())):
             layout.itemAt(i).widget().setParent(None)
 
-    def fillLayout(self, layout: QGridLayout, widgets: list[object], gridAlignment: bool) -> None:
-        currentX, currentY = 0, 0
-        for widget in widgets:
-            widget.x, widget.y = currentX, currentY
-            layout.addWidget(widget, widget.y, widget.x)
-            
-            if gridAlignment:
-                currentX, currentY = self.updateWidgetXY(currentX, currentY, 1, 1, maxColumn = 4, gridAlignment = True)
-            else:
-                currentX, currentY = self.updateWidgetXY(currentX, currentY, 0, 1)
+    def fillLayout(self, layout: QGridLayout, widgets: list[QWidget], gridAlignment: bool) -> None:
+        if widgets != []:
+            currentX, currentY = 0, 0
+            self.scrollLayout.setAlignment(QtCore.Qt.AlignTop)
+            for widget in widgets:
+                widget.x, widget.y = currentX, currentY
+                layout.addWidget(widget, widget.y, widget.x)
+                
+                if gridAlignment:
+                    currentX, currentY = self.updateWidgetXY(currentX, currentY, 1, 1, maxColumn = 4, gridAlignment = True)
+                else:
+                    currentX, currentY = self.updateWidgetXY(currentX, currentY, 0, 1)
+        else:
+            widget = loadUi('UI\\default.ui')
+            self.scrollLayout.setAlignment(QtCore.Qt.AlignVCenter)
+            self.scrollLayout.addWidget(widget)
 
     def updateWidgetXY(self, x, y, dx = 0, dy = 0, maxColumn = 99999, gridAlignment = False):
         if gridAlignment:
@@ -63,6 +46,23 @@ class MainWindow(Window, QMainWindow):
         else:
             y += dy
         return x, y
+
+class MainWindow(DefaultLayoutWindow, QMainWindow):
+    def __init__(self, UIModel, parent=None):
+        QMainWindow.__init__(self)
+        DefaultLayoutWindow.__init__(self, UIModel)
+        global configManager
+        global serviceManager
+
+        self.setFixedSize(800, 500) 
+        self.setSidebarButtonsClick()
+        self.setToolbarButtonsClick()
+
+        self.startStopSwitch(serviceManager.checkServiceStatus())
+
+        self.focus = 0
+        self.drawSourceWidgets()
+        self.show()
 
     def buildSourceWidgets(self, labels: list[str]) -> list[object]:
         widgets = []
@@ -88,20 +88,26 @@ class MainWindow(Window, QMainWindow):
             widgets.append(widget)
         return widgets
 
-    def buildGridWidgets(self) -> None:
-        self.sourceWidgets = self.buildSourceWidgets(self.sources)
-        self.extensionWidgets = self.buildExtensionWidgets(self.extensions)
-        self.destinationWidgets = self.buildDestinationWidgets(self.destinations)
+    def setSidebarButtonsClick(self):
+        self.sourceButton.clicked.connect(self.drawSourceWidgets)
+        self.extButton.clicked.connect(self.drawExtensionWidgets)
+        self.destButton.clicked.connect(self.drawDestinationWidgets)
+        self.infoButton.clicked.connect(self.drawInfoWidgets)
 
-    def initTabUI(self, focus=0, labelText="") -> None:
-        self.setStructs()
-        self.buildGridWidgets()
+    def setToolbarButtonsClick(self):
+        self.startButton.clicked.connect(serviceManager.startService)
+        self.startButton.clicked.connect(lambda: self.startStopSwitch(serviceManager.checkServiceStatus()))
+        self.stopButton.clicked.connect(serviceManager.stopService)
+        self.stopButton.clicked.connect(lambda: self.startStopSwitch(serviceManager.checkServiceStatus()))
+        self.addButton.clicked.connect(self.newLayoutWidget)
+
+    def initLayout(self, focus = 0, labelText="") -> None:
+        if (self.focus == 3 and focus < 3) or (self.focus < 3 and focus == 3):
+            self.toggleToolbar()
+        self.focus = focus
         self.toggleSidebarButton(self.sender())
         self.clearLayout(self.scrollLayout)
-
         self.addButton.setDisabled(False)
-        self.focus = focus
-
         self.descriptionLabel.setText(labelText)
 
     def toggleSidebarButton(self, button: QPushButton) -> None:
@@ -109,85 +115,103 @@ class MainWindow(Window, QMainWindow):
             if isinstance(widget, QPushButton) and widget != button and widget.isChecked():
                 widget.setChecked(False)
 
-    @QtCore.Slot()
-    def generateSourceUI(self) -> None:
-        text = "Manage here the folders you want Pathfinder to extract your files from"
-        self.initTabUI(labelText=text)
+    def toggleToolbar(self):
+        for widget in self.buttonFrame.children():
+            if isinstance(widget, QPushButton):
+                widget.setDisabled(not widget.isEnabled())
+                widget.setVisible(not widget.isVisible())
 
+    def startStopSwitch(self, status: str):
+        if status == "SERVICE_RUNNING":
+            print("running")
+            self.startButton.setDisabled(True)
+            self.stopButton.setDisabled(False)
+        elif status == "SERVICE_STOPPED" or status == "SERVICE_PAUSED":
+            print("stopped")
+            self.stopButton.setDisabled(True)
+            self.startButton.setDisabled(False)
+        else:
+            self.startButton.setDisabled(True)
+            self.stopButton.setDisabled(True)
+
+    @QtCore.Slot()
+    def drawSourceWidgets(self) -> None:
+        text = "Manage here the folders you want Pathfinder to extract your files from"
+        self.initLayout(labelText=text)
+        self.fillLayout(self.scrollLayout, self.buildSourceWidgets(configManager.loadConfig()[0]), gridAlignment = False)
         self.sourceButton.setChecked(True)
 
-        self.fillLayout(self.scrollLayout, self.sourceWidgets, gridAlignment = False)
-                    
     @QtCore.Slot()
-    def generateExtUI(self) -> None:
+    def drawExtensionWidgets(self) -> None:
         text = "Add here the extensions of the files you want Pathfinder to move"
-        self.initTabUI(focus = 1, labelText = text)
+        self.initLayout(focus = 1, labelText = text)
 
         self.extButton.setChecked(True)
-        self.fillLayout(self.scrollLayout, self.extensionWidgets, gridAlignment = True)
-        for widget in self.extensionWidgets:
+        extensionWidgets = self.buildExtensionWidgets(configManager.loadConfig()[1])
+        self.fillLayout(self.scrollLayout, extensionWidgets, gridAlignment = True)
+        for widget in extensionWidgets:
             if widget.textEdit.text() == ".":
                 widget.setEditable(self.editLayoutWidget)
                 self.addButton.setDisabled(True)
 
     @QtCore.Slot()
-    def generateDestUI(self) -> None:
+    def drawDestinationWidgets(self) -> None:
         text = "Manage here the folders where you want Pathfinder to place your files"
-        self.initTabUI(focus = 2, labelText = text)
+        self.initLayout(focus = 2, labelText = text)
         
         self.destButton.setChecked(True)
 
-        self.fillLayout(self.scrollLayout, self.destinationWidgets, gridAlignment = False)
-        for widget in self.destinationWidgets:
-            widget.connectExtensions(self.tracklist)
+        destinationWidgets = self.buildDestinationWidgets(configManager.loadConfig()[2])
+        self.fillLayout(self.scrollLayout, destinationWidgets, gridAlignment = False)
+        for widget in destinationWidgets:
+            widget.connectExtensions(configManager.loadConfig()[3])
 
     @QtCore.Slot()
-    def generateInfoUI(self) -> None:
+    def drawInfoWidgets(self) -> None:
         text = "About this software"
-        self.initTabUI(focus = 3, labelText = text)
+        self.initLayout(focus = 3, labelText = text)
 
         self.infoButton.setChecked(True)
         widget = loadUi('UI\\info.ui')
         self.scrollLayout.addWidget(widget)
-        self.addButton.setDisabled(True)
         
     @QtCore.Slot()
     def newLayoutWidget(self) -> None:
         if self.focus == 0:
-            self.configManager.addToConfig(self.focus, "TRACKED", "sources")
-            self.generateSourceUI()
+            configManager.addToConfig(self.focus, "TRACKED", "sources")
+            self.drawSourceWidgets()
         elif self.focus == 1:
-            self.configManager.addToConfig(self.focus, "TRACKED", "extensions")
-            self.generateExtUI()
+            configManager.addToConfig(self.focus, "TRACKED", "extensions")
+            self.drawExtensionWidgets()
         elif self.focus == 2:
-            self.configManager.addToConfig(self.focus, "TRACKED", "destinations")
-            self.generateDestUI()
+            configManager.addToConfig(self.focus, "TRACKED", "destinations")
+            self.drawDestinationWidgets()
 
     @QtCore.Slot()
     def editLayoutWidget(self) -> None:
         widgetLabel = self.sender().parent().parent().textEdit.text()
         if self.focus == 0:
-            self.configManager.editConfig(self.focus, "TRACKED", "sources", widgetLabel)
-            self.generateSourceUI()
+            configManager.editConfig(self.focus, "TRACKED", "sources", widgetLabel)
+            self.drawSourceWidgets()
         elif self.focus == 1:
-            self.configManager.editConfig(self.focus, "TRACKED", "extensions", widgetLabel)
-            self.generateExtUI()
+            configManager.editConfig(self.focus, "TRACKED", "extensions", widgetLabel)
+            self.drawExtensionWidgets()
         elif self.focus == 2:
-            self.configManager.editConfig(self.focus, "TRACKED", "destinations", widgetLabel)
-            self.generateDestUI()
+            configManager.editConfig(self.focus, "TRACKED", "destinations", widgetLabel)
+            self.drawDestinationWidgets()
 
     @QtCore.Slot()
     def removeLayoutWidget(self) -> None:
         widgetLabel = self.sender().parent().parent().textEdit.text()
         if self.focus == 0:
-            self.configManager.removeFromConfig(self.focus, "TRACKED", "sources", widgetLabel)
-            self.generateSourceUI()
+            configManager.removeFromConfig(self.focus, "TRACKED", "sources", widgetLabel)
+            self.drawSourceWidgets()
         elif self.focus == 1:
-            self.configManager.removeFromConfig(self.focus, "TRACKED", "extensions", widgetLabel)
-            self.generateExtUI()
+            configManager.removeFromConfig(self.focus, "TRACKED", "extensions", widgetLabel)
+            self.drawExtensionWidgets()
         elif self.focus == 2:
-            self.configManager.removeFromConfig(self.focus, "TRACKED", "destinations", widgetLabel)
-            self.generateDestUI()
+            configManager.removeFromConfig(self.focus, "TRACKED", "destinations", widgetLabel)
+            self.drawDestinationWidgets()
 
     @QtCore.Slot()
     def linkExtension(self) -> None:
@@ -195,24 +219,23 @@ class MainWindow(Window, QMainWindow):
         dialog.exec()
         destination = self.sender().parent().parent().textEdit.text()
         selections = dialog.checkedExt
-        associations = self.configManager.readRawOption("TRACKLIST", destination)
+        associations = configManager.readRawOption("TRACKLIST", destination)
 
         for ext in selections:
             associations = associations + "|" + ext
 
-        self.configManager.writeRawOption("TRACKLIST", destination, associations)
-        self.generateDestUI()
+        configManager.writeRawOption("TRACKLIST", destination, associations)
+        self.drawDestinationWidgets()
 
-
-class Dialog(Window, QDialog):
+class Dialog(DefaultLayoutWindow, QDialog):
     def __init__(self, UIModel, parent=None):
         QDialog.__init__(self, parent)
-        Window.__init__(self, UIModel)
+        DefaultLayoutWindow.__init__(self, UIModel)
+        global configManager
 
         self.setFixedSize(500, 300)
-        self.setStructs()
         self.availableExt = []
-        self.dialogUI()
+        self.drawDialogWidgets()
 
         self.buttonBox.accepted.connect(self.accept)
         self.buttonBox.rejected.connect(self.reject)
@@ -226,12 +249,20 @@ class Dialog(Window, QDialog):
                 return True
         return False
 
-    def dialogUI(self):
-        for ext in self.extensions:
-            if not self.existIn(ext, self.tracklist):
+    def buildDialogWidgets(self, labels: list[str]) -> list[object]:
+        widgets = []
+        for label in labels:
+            widget = LayoutWidget('UI\\ext-choice.ui', label)
+            widgets.append(widget)
+        return widgets
+
+    def drawDialogWidgets(self):
+        for ext in configManager.loadConfig()[1]:
+            if not self.existIn(ext, configManager.loadConfig()[3]):
                 self.availableExt.append(ext)
                 
-        self.fillLayout(self.scrollLayout, self.availableExt, 'UI\\ext-choice.ui', gridAlignment = True)
+        widgets = self.buildDialogWidgets(self.availableExt)
+        self.fillLayout(self.scrollLayout, widgets, gridAlignment = True)
 
     def accept(self) -> None:
         for i in reversed(range(self.scrollLayout.count())):
@@ -247,5 +278,7 @@ class Dialog(Window, QDialog):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
+    configManager = ConfigManager("data.ini")
+    serviceManager = ServiceManager("PathFinder")
     window = MainWindow(UIModel = 'UI\\pathfinder-main.ui')
     sys.exit(app.exec_())

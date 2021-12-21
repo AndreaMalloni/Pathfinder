@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>585</width>
-    <height>430</height>
+    <height>378</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,10 +15,28 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <property name="spacing">
-    <number>15</number>
+    <number>9</number>
+   </property>
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>0</number>
    </property>
    <item>
     <widget class="QFrame" name="frame">
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>140</height>
+      </size>
+     </property>
      <property name="styleSheet">
       <string notr="true">QFrame {
 background-color: rgb(26, 32, 50);
@@ -38,10 +56,23 @@ font: bold;
       <property name="spacing">
        <number>0</number>
       </property>
+      <property name="leftMargin">
+       <number>9</number>
+      </property>
+      <property name="topMargin">
+       <number>9</number>
+      </property>
+      <property name="rightMargin">
+       <number>9</number>
+      </property>
+      <property name="bottomMargin">
+       <number>9</number>
+      </property>
       <item>
        <widget class="QLabel" name="label_3">
         <property name="font">
          <font>
+          <family>Roboto Medium</family>
           <pointsize>11</pointsize>
           <weight>75</weight>
           <italic>false</italic>
@@ -60,6 +91,9 @@ font: bold;
         <property name="scaledContents">
          <bool>false</bool>
         </property>
+        <property name="textInteractionFlags">
+         <set>Qt::TextBrowserInteraction</set>
+        </property>
        </widget>
       </item>
       <item>
@@ -72,6 +106,7 @@ font: bold;
         </property>
         <property name="font">
          <font>
+          <family>Roboto Medium</family>
           <pointsize>8</pointsize>
           <weight>75</weight>
           <italic>false</italic>
@@ -80,6 +115,9 @@ font: bold;
         </property>
         <property name="text">
          <string>* Software Version: 1.0.0</string>
+        </property>
+        <property name="textInteractionFlags">
+         <set>Qt::TextBrowserInteraction</set>
         </property>
        </widget>
       </item>
@@ -93,6 +131,7 @@ font: bold;
         </property>
         <property name="font">
          <font>
+          <family>Roboto Medium</family>
           <pointsize>8</pointsize>
           <weight>75</weight>
           <italic>false</italic>
@@ -102,6 +141,9 @@ font: bold;
         <property name="text">
          <string>* PySide2 Version: 5.15.2</string>
         </property>
+        <property name="textInteractionFlags">
+         <set>Qt::TextBrowserInteraction</set>
+        </property>
        </widget>
       </item>
      </layout>
@@ -109,6 +151,12 @@ font: bold;
    </item>
    <item>
     <widget class="QFrame" name="frame_3">
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>110</height>
+      </size>
+     </property>
      <property name="styleSheet">
       <string notr="true">QFrame {
 background-color: rgb(26, 32, 50);
@@ -125,10 +173,26 @@ font: bold;
       <enum>QFrame::Raised</enum>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_4">
+      <property name="spacing">
+       <number>0</number>
+      </property>
+      <property name="leftMargin">
+       <number>9</number>
+      </property>
+      <property name="topMargin">
+       <number>9</number>
+      </property>
+      <property name="rightMargin">
+       <number>9</number>
+      </property>
+      <property name="bottomMargin">
+       <number>9</number>
+      </property>
       <item>
        <widget class="QLabel" name="label_2">
         <property name="font">
          <font>
+          <family>Roboto Medium</family>
           <pointsize>11</pointsize>
           <weight>75</weight>
           <italic>false</italic>
@@ -137,6 +201,9 @@ font: bold;
         </property>
         <property name="text">
          <string>Contacts:</string>
+        </property>
+        <property name="textInteractionFlags">
+         <set>Qt::TextBrowserInteraction</set>
         </property>
        </widget>
       </item>
@@ -150,6 +217,7 @@ font: bold;
         </property>
         <property name="font">
          <font>
+          <family>Roboto Medium</family>
           <pointsize>8</pointsize>
           <weight>75</weight>
           <italic>false</italic>
@@ -157,7 +225,10 @@ font: bold;
          </font>
         </property>
         <property name="text">
-         <string>* Emal: malloni.andrea02@gmail.com</string>
+         <string>* Email: malloni.andrea02@gmail.com</string>
+        </property>
+        <property name="textInteractionFlags">
+         <set>Qt::TextBrowserInteraction</set>
         </property>
        </widget>
       </item>
@@ -166,6 +237,12 @@ font: bold;
    </item>
    <item>
     <widget class="QFrame" name="frame_2">
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>112</height>
+      </size>
+     </property>
      <property name="styleSheet">
       <string notr="true">QFrame {
 background-color: rgb(26, 32, 50);
@@ -182,10 +259,20 @@ font: bold;
       <enum>QFrame::Raised</enum>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_3">
+      <property name="leftMargin">
+       <number>9</number>
+      </property>
+      <property name="topMargin">
+       <number>9</number>
+      </property>
+      <property name="rightMargin">
+       <number>9</number>
+      </property>
       <item>
        <widget class="QLabel" name="label_7">
         <property name="font">
          <font>
+          <family>Roboto Medium</family>
           <pointsize>11</pointsize>
           <weight>75</weight>
           <italic>false</italic>
@@ -195,32 +282,24 @@ font: bold;
         <property name="text">
          <string>Assets author references:</string>
         </property>
+        <property name="textInteractionFlags">
+         <set>Qt::TextSelectableByMouse</set>
+        </property>
        </widget>
       </item>
       <item>
-       <widget class="QCommandLinkButton" name="commandLinkButton">
-        <property name="font">
-         <font>
-          <family>Segoe UI</family>
-          <pointsize>8</pointsize>
-         </font>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">QCommandLinkButton {
-color: white;
-background-color: rgb(26, 32, 50);
-border-radius: 8px;
-}
-
-QCommandLinkButton:hover {
-color: white;
-background-color: rgb(36, 42, 59);
-border-radius: 8px;
-}
-</string>
-        </property>
+       <widget class="QLabel" name="label_4">
         <property name="text">
-         <string> Freepick</string>
+         <string>&lt;a href=&quot;https://www.flaticon.com/authors/freepik&quot; style='color: DodgerBlue'&gt;Freepick from Flaticon&lt;/a&gt;</string>
+        </property>
+        <property name="textFormat">
+         <enum>Qt::RichText</enum>
+        </property>
+        <property name="openExternalLinks">
+         <bool>true</bool>
+        </property>
+        <property name="textInteractionFlags">
+         <set>Qt::TextBrowserInteraction</set>
         </property>
        </widget>
       </item>
@@ -230,7 +309,7 @@ border-radius: 8px;
   </layout>
  </widget>
  <resources>
-  <include location="resource.qrc"/>
+  <include location="../assets/resource.qrc"/>
  </resources>
  <connections/>
 </ui>

@@ -1,6 +1,5 @@
 import configparser
 from tkinter import filedialog, Tk
-from tkinter.constants import N
 
 class DataParser():
     def __init__(self, file) -> None:
@@ -8,7 +7,8 @@ class DataParser():
         self.parser = configparser.ConfigParser(delimiters=('='), allow_no_value=True)
 
         self.parser.optionxform = str
-        self.parser.read(file)
+        self.parser.read(self.configFile)
+        self.configBackup = list(self.loadConfig())
 
     def loadConfig(self):
         self.parser.read(self.configFile)
@@ -25,6 +25,9 @@ class DataParser():
                 extensions if '' not in extensions else [], 
                 destinations if '' not in destinations else [],
                 tracklist)
+
+    def updateBackup(self):
+        self.configBackup = list(self.loadConfig())
 
     def readRawOption(self, section, key):
         return self.parser.get(section, key)
@@ -60,6 +63,7 @@ class DataParser():
     def saveConfig(self):
         with open(self.configFile, 'w') as configfile:
             self.parser.write(configfile)
+
 
 class ConfigManager(DataParser):
     def __init__(self, file) -> None:
@@ -110,6 +114,12 @@ class ConfigManager(DataParser):
 
         if focus == 2:
             self.removeKey("TRACKLIST", value)
+
+    def hasChanged(self):
+        if self.configBackup == list(self.loadConfig()):
+            return False
+        else:
+            return True
 
     def getPath(self):
         root = Tk()

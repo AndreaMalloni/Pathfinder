@@ -1,13 +1,13 @@
-from PySide2 import QtCore, QtGui, QtWidgets
-from PySide2.QtCore import (QCoreApplication, QPropertyAnimation, QDate, QDateTime, QMetaObject, QObject, QPoint, QRect, QSize, QTime, QUrl, Qt, QEvent, QRegExp)
-from PySide2.QtGui import (QBrush, QColor, QConicalGradient, QCursor, QFont, QFontDatabase, QIcon, QKeySequence, QLinearGradient, QPalette, QPainter, QPixmap, QRadialGradient, QRegExpValidator)
+from PySide2.QtCore import QRegExp
+from PySide2.QtGui import QRegExpValidator
 from PySide2.QtWidgets import *
 from pyside_dynamic import *
 
 class LayoutWidget(QFrame):
-    def __init__(self, UIModel: str) -> None:
+    def __init__(self, UIModel: str, label: str) -> None:
         super().__init__()
         loadUi(UIModel, self)
+        self.textEdit.setText(label)
         self.x = 0
         self.y = 0
 
@@ -17,8 +17,7 @@ class LayoutWidget(QFrame):
 
 class SourceWidget(LayoutWidget):
     def __init__(self, UIModel: str, label: str) -> None:
-        super().__init__(UIModel)
-        self.textEdit.setText(label)
+        super().__init__(UIModel, label)
 
     def connectButtons(self, editMethod, deleteMethod) -> None:
         self.editButton.clicked.connect(editMethod)
@@ -27,8 +26,7 @@ class SourceWidget(LayoutWidget):
 
 class ExtensionWidget(LayoutWidget):
     def __init__(self, UIModel: str, label: str) -> None:
-        super().__init__(UIModel)
-        self.textEdit.setText(label)
+        super().__init__(UIModel, label)
 
     def connectButtons(self, deleteMethod) -> None:
         self.deleteButton.clicked.connect(deleteMethod)
@@ -42,8 +40,7 @@ class ExtensionWidget(LayoutWidget):
 
 class DestinationWidget(LayoutWidget):
     def __init__(self, UIModel: str, label: str) -> None:
-        super().__init__(UIModel)
-        self.textEdit.setText(label)
+        super().__init__(UIModel, label)
 
     def connectButtons(self, linkMethod, editMethod, deleteMethod) -> None:
         self.extButton.clicked.connect(linkMethod)

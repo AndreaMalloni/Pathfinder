@@ -1,5 +1,8 @@
 <RCC>
   <qresource prefix="icons">
+    <file>play-button.ico</file>
+    <file>stop-button.ico</file>
+    <file>search.ico</file>
     <file>logo.png</file>
     <file>check.ico</file>
     <file>checkbox.ico</file>

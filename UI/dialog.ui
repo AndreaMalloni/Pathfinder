@@ -17,8 +17,8 @@
    <string>Pathfinder - dialog</string>
   </property>
   <property name="windowIcon">
-   <iconset>
-    <normaloff>:/images/images/logo.png</normaloff>:/images/images/logo.png</iconset>
+   <iconset resource="../assets/resource.qrc">
+    <normaloff>:/icons/logo.png</normaloff>:/icons/logo.png</iconset>
   </property>
   <property name="styleSheet">
    <string notr="true">background-color: rgb(26, 32, 50);</string>
@@ -43,6 +43,7 @@
      </property>
      <property name="font">
       <font>
+       <family>Roboto Medium</family>
        <pointsize>10</pointsize>
        <weight>75</weight>
        <bold>true</bold>
@@ -276,6 +277,7 @@ border-radius: 10px</string>
      </property>
      <property name="font">
       <font>
+       <family>Roboto Medium</family>
        <weight>50</weight>
        <bold>false</bold>
       </font>

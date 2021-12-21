@@ -10,6 +10,9 @@
     <height>359</height>
    </rect>
   </property>
+  <property name="mouseTracking">
+   <bool>false</bool>
+  </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
@@ -33,6 +36,9 @@
        <width>16777215</width>
        <height>60</height>
       </size>
+     </property>
+     <property name="mouseTracking">
+      <bool>false</bool>
      </property>
      <property name="styleSheet">
       <string notr="true">background-color: rgb(26, 32, 50);

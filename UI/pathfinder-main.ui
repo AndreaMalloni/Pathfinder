@@ -69,7 +69,7 @@
         <widget class="QFrame" name="sidebarFrame">
          <property name="maximumSize">
           <size>
-           <width>165</width>
+           <width>170</width>
            <height>16777215</height>
           </size>
          </property>
@@ -156,6 +156,7 @@
             </property>
             <property name="font">
              <font>
+              <family>Roboto Medium</family>
               <pointsize>11</pointsize>
               <weight>75</weight>
               <bold>true</bold>
@@ -232,6 +233,7 @@ padding: 10px;
             </property>
             <property name="font">
              <font>
+              <family>Roboto Medium</family>
               <pointsize>11</pointsize>
               <weight>75</weight>
               <bold>true</bold>
@@ -297,6 +299,7 @@ background-color: rgb(47, 55, 77);
             </property>
             <property name="font">
              <font>
+              <family>Roboto Medium</family>
               <pointsize>11</pointsize>
               <weight>75</weight>
               <bold>true</bold>
@@ -554,6 +557,7 @@ background-color: rgb(47, 55, 77);
             </property>
             <property name="font">
              <font>
+              <family>Roboto Medium</family>
               <weight>75</weight>
               <bold>true</bold>
              </font>
@@ -938,7 +942,7 @@ padding-left: 15px;
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>555</width>
+                    <width>550</width>
                     <height>345</height>
                    </rect>
                   </property>
@@ -982,6 +986,96 @@ padding-left: 15px;
                 <number>0</number>
                </property>
                <item>
+                <widget class="QPushButton" name="startButton">
+                 <property name="font">
+                  <font>
+                   <family>Roboto Medium</family>
+                   <weight>75</weight>
+                   <bold>true</bold>
+                  </font>
+                 </property>
+                 <property name="styleSheet">
+                  <string notr="true">QPushButton
+{
+color: rgb(255, 255, 255);
+border-radius: 5px;
+text-align: center;
+padding: 10px;
+}
+
+QPushButton:hover
+{
+color:rgb(255, 255, 255);
+border-radius: 5px;
+text-align: center;
+padding: 10px;
+background-color: rgb(26, 32, 50);
+}
+
+QPushButton:disabled
+{
+color: rgb(142, 142, 142);
+border-radius: 5px;
+text-align: center;
+padding: 10px;
+}</string>
+                 </property>
+                 <property name="text">
+                  <string> Start Service</string>
+                 </property>
+                 <property name="icon">
+                  <iconset>
+                   <normalon>:/icons/play-button.ico</normalon>
+                  </iconset>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="stopButton">
+                 <property name="font">
+                  <font>
+                   <family>Roboto Medium</family>
+                   <weight>75</weight>
+                   <bold>true</bold>
+                  </font>
+                 </property>
+                 <property name="styleSheet">
+                  <string notr="true">QPushButton
+{
+color: rgb(255, 255, 255);
+border-radius: 5px;
+text-align: center;
+padding: 10px;
+}
+
+QPushButton:hover
+{
+color:rgb(255, 255, 255);
+border-radius: 5px;
+text-align: center;
+padding: 10px;
+background-color: rgb(26, 32, 50);
+}
+
+QPushButton:disabled
+{
+color: rgb(142, 142, 142);
+border-radius: 5px;
+text-align: center;
+padding: 10px;
+}</string>
+                 </property>
+                 <property name="text">
+                  <string> Stop Service</string>
+                 </property>
+                 <property name="icon">
+                  <iconset>
+                   <normalon>:/icons/stop-button.ico</normalon>
+                  </iconset>
+                 </property>
+                </widget>
+               </item>
+               <item>
                 <spacer name="horizontalSpacer">
                  <property name="orientation">
                   <enum>Qt::Horizontal</enum>
@@ -1010,6 +1104,7 @@ padding-left: 15px;
                  </property>
                  <property name="font">
                   <font>
+                   <family>Roboto Medium</family>
                    <weight>75</weight>
                    <bold>true</bold>
                   </font>
@@ -1047,7 +1142,7 @@ padding: 10px;
 }</string>
                  </property>
                  <property name="text">
-                  <string> Add New</string>
+                  <string> Add an Item</string>
                  </property>
                  <property name="icon">
                   <iconset>
