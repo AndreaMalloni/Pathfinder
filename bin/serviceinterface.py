@@ -4,9 +4,12 @@ import os
 class ServiceManager():
     def __init__(self, service_name: str) -> None:
         self.service = service_name
+        self.workingdir = os.getcwd()
+        print(self.workingdir)
 
     def checkServiceStatus(self):
-        status = run("{nssm} status {service}".format(nssm = os.path.abspath('service_tools\\nssm.exe'), 
+        status = run("{nssm} status {service}".format(
+                    nssm = 'tools\\nssm.exe', 
                     service = self.service), 
                     stdout=PIPE, 
                     stderr=PIPE, 
@@ -16,7 +19,8 @@ class ServiceManager():
         return result.replace("\n", "")
 
     def startService(self):
-        command = run("{nssm} start {service}".format(nssm = os.path.abspath('service_tools\\nssm.exe'), 
+        command = run("{nssm} start {service}".format(
+                    nssm = 'tools\\nssm.exe', 
                     service = self.service), 
                     stdout=PIPE, 
                     stderr=PIPE, 
@@ -24,7 +28,8 @@ class ServiceManager():
                     shell=True)
         
     def stopService(self):
-        command = run("{nssm} stop {service}".format(nssm = os.path.abspath('service_tools\\nssm.exe'), 
+        command = run("{nssm} stop {service}".format(
+                    nssm = 'tools\\nssm.exe', 
                     service = self.service), 
                     stdout=PIPE, 
                     stderr=PIPE, 

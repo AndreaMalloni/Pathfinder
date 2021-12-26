@@ -19,6 +19,9 @@ class DefaultLayoutWindow():
         for i in reversed(range(layout.count())):
             layout.itemAt(i).widget().setParent(None)
 
+    def isLayoutEmpty(self, layout: QLayout):
+        return (False if layout.count() != 0 else True)
+
     def fillLayout(self, layout: QGridLayout, widgets: list[QWidget], gridAlignment: bool) -> None:
         if widgets != []:
             currentX, currentY = 0, 0
@@ -123,11 +126,9 @@ class MainWindow(DefaultLayoutWindow, QMainWindow):
 
     def startStopSwitch(self, status: str):
         if status == "SERVICE_RUNNING":
-            print("running")
             self.startButton.setDisabled(True)
             self.stopButton.setDisabled(False)
         elif status == "SERVICE_STOPPED" or status == "SERVICE_PAUSED":
-            print("stopped")
             self.stopButton.setDisabled(True)
             self.startButton.setDisabled(False)
         else:

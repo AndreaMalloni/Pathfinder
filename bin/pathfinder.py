@@ -69,17 +69,14 @@ class Handler(FileSystemEventHandler):
 
     def on_created(self, event) -> None:
         if isinstance(event, FileCreatedEvent):
-            print("*filtering*\n")
             self.filter(os.path.dirname(event.src_path))
 
     def on_moved(self, event) -> None:
         if isinstance(event, FileMovedEvent):
-            print("*filtering*\n")
             self.filter(os.path.dirname(event.src_path))
 
     def on_modified(self, event) -> None:
         if isinstance(event, FileModifiedEvent):
-            print("*filtering*\n")
             self.filter(os.path.dirname(event.src_path))
 
     def filter(self, dir_path):
@@ -115,7 +112,7 @@ class Handler(FileSystemEventHandler):
         while(os.path.exists(file)):
             copies += 1
             file = file[:-len(file_extension)]
-            file = file[:-4]
+            file = file[:-(len(str(copies)) + 3)]
             file += " ({C})".format(C = copies)
             file = file + file_extension
         return file
