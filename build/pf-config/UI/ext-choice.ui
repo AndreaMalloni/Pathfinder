@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Form</class>
+ <widget class="QWidget" name="Form">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>400</width>
+    <height>300</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0">
+    <widget class="QRadioButton" name="textEdit">
+     <property name="font">
+      <font>
+       <family>Roboto Medium</family>
+       <pointsize>9</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QRadioButton
+{
+color: rgb(255, 255, 255);
+border-radius: 10px;
+text-align: left;
+padding: 10px;
+background-color: rgb(36, 42, 59);
+}
+
+QRadioButton:hover
+{
+color: rgb(255, 255, 255);
+border-radius: 10px;
+text-align: left;
+padding: 10px;
+background-color: rgb(26, 32, 50);
+}
+
+QRadioButton:checked
+{
+color: rgb(255, 255, 255);
+border-radius: 10px;
+text-align: left;
+padding: 10px;
+background-color: rgb(47, 55, 77);
+}
+
+QRadioButton::indicator::unchecked {
+border-image: url(:/icons/stop.ico);
+}
+
+QRadioButton::indicator::checked {
+border-image: url(:/icons/checkbox.ico);
+}
+</string>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources>
+  <include location="../assets/resource.qrc"/>
+ </resources>
+ <connections/>
+</ui>
