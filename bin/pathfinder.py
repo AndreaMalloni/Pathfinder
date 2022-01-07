@@ -4,11 +4,12 @@ import time
 import logging
 from watchdog.observers import Observer
 from watchdog.events import FileCreatedEvent, FileModifiedEvent, FileMovedEvent, FileSystemEventHandler, LoggingEventHandler
-from configInterface import ConfigManager
+from config import Config
+from utility_func import renameAsDuplicate
 
 class PathFinder():
     def __init__(self) -> None:
-        global configManager
+        global config
         
         self.event_handler = Handler()
         self.log_handler = LoggingEventHandler()
@@ -17,7 +18,7 @@ class PathFinder():
 
     def setupDestinationFolders(self):
         try:
-            tracklist = configManager.loadConfig()[3]
+            tracklist = config.load()[3]
             for source in tracklist.keys():
                 for file_extension in tracklist[source]:
                     path = source + "\{E}".format(E = file_extension.upper()[1:])
@@ -30,7 +31,7 @@ class PathFinder():
     def setupObserversSchedule(self):
         self.observer.unschedule_all()
         self.logger.unschedule_all()
-        for path in configManager.loadConfig()[0]:
+        for path in config.load()[0]:
             self.observer.schedule(self.event_handler, path)
             self.logger.schedule(self.log_handler, path)
 
@@ -52,7 +53,8 @@ class PathFinder():
         try:
             self.startTracking()
             while True:
-                if configManager.hasChanged():
+                if config.hasChanged():
+                    config.update(includeBackup = True)
                     self.setupDestinationFolders()
                     self.setupObserversSchedule()
                 time.sleep(1)
@@ -65,7 +67,7 @@ class PathFinder():
 class Handler(FileSystemEventHandler):
     def __init__(self) -> None:
         super().__init__()
-        global configManager
+        global config
 
     def on_created(self, event) -> None:
         if isinstance(event, FileCreatedEvent):
@@ -79,47 +81,35 @@ class Handler(FileSystemEventHandler):
         if isinstance(event, FileModifiedEvent):
             self.filter(os.path.dirname(event.src_path))
 
-    def filter(self, dir_path):
+    def filter(self, dir_path) -> None:
         for file in os.listdir(dir_path):
             file_path = os.path.join(dir_path, file)
             file_extension = os.path.splitext(file)[1]
             if os.path.isfile(file_path) and self.isTracked(file_extension):
-                self.changeLocation(file_path)
+                self.dispatchFile(file_path)
 
-    def isTracked(self, file_extension):
+    def isTracked(self, file_extension) -> bool:
         isTracked = False
-        tracklist = configManager.loadConfig()[3]
+        tracklist = config.load()[3]
         for destination in tracklist:
             if file_extension in tracklist[destination]: isTracked = True
         return isTracked
 
-    def changeLocation(self, file):
+    def dispatchFile(self, file) -> None:
         file_extension = os.path.splitext(file)[1]
         filename = os.path.split(file)[1]
-        tracklist = configManager.loadConfig()[3]
+        tracklist = config.load()[3]
+
         for destination in tracklist:
             if file_extension in tracklist[destination]:
                 new_path = destination + "\{E}".format(E = file_extension.upper()[1:]) + "\{F}".format(F = filename)
                 if os.path.exists(new_path):
-                    new_path = self.renameDuplicate(new_path)
+                    new_path = renameAsDuplicate(new_path)
                 os.rename(file, new_path)
-
-    def renameDuplicate(self, file):
-        copies = 1
-        file_extension = os.path.splitext(file)[1]
-        file = file[:-len(file_extension)]
-        file = file + " ({C})".format(C = copies) + file_extension
-        while(os.path.exists(file)):
-            copies += 1
-            file = file[:-len(file_extension)]
-            file = file[:-(len(str(copies)) + 3)]
-            file += " ({C})".format(C = copies)
-            file = file + file_extension
-        return file
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
 
-    configManager = ConfigManager("data.ini")
+    config = Config("data.ini")
     pathfinder = PathFinder()
     pathfinder.run()
