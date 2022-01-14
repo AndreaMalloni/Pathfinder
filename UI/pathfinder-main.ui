@@ -19,7 +19,7 @@
    </iconset>
   </property>
   <property name="windowOpacity">
-   <double>0.990000000000000</double>
+   <double>0.999999000000000</double>
   </property>
   <property name="styleSheet">
    <string notr="true">background-color: rgb(26, 32, 50);</string>
@@ -558,6 +558,7 @@ background-color: rgb(47, 55, 77);
             <property name="font">
              <font>
               <family>Roboto Medium</family>
+              <pointsize>10</pointsize>
               <weight>75</weight>
               <bold>true</bold>
              </font>
@@ -990,6 +991,7 @@ padding-left: 15px;
                  <property name="font">
                   <font>
                    <family>Roboto Medium</family>
+                   <pointsize>10</pointsize>
                    <weight>75</weight>
                    <bold>true</bold>
                   </font>
@@ -1035,6 +1037,7 @@ padding: 10px;
                  <property name="font">
                   <font>
                    <family>Roboto Medium</family>
+                   <pointsize>10</pointsize>
                    <weight>75</weight>
                    <bold>true</bold>
                   </font>
@@ -1105,6 +1108,7 @@ padding: 10px;
                  <property name="font">
                   <font>
                    <family>Roboto Medium</family>
+                   <pointsize>10</pointsize>
                    <weight>75</weight>
                    <bold>true</bold>
                   </font>

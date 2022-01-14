@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>140</width>
-    <height>324</height>
+    <height>78</height>
    </rect>
   </property>
   <property name="maximumSize">
@@ -77,6 +77,7 @@ border-radius: 10px;
         </property>
         <property name="font">
          <font>
+          <pointsize>8</pointsize>
           <weight>75</weight>
           <bold>true</bold>
          </font>

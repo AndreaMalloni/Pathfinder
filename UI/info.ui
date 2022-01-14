@@ -289,6 +289,14 @@ font: bold;
       </item>
       <item>
        <widget class="QLabel" name="label_4">
+        <property name="font">
+         <font>
+          <pointsize>8</pointsize>
+          <weight>75</weight>
+          <italic>false</italic>
+          <bold>true</bold>
+         </font>
+        </property>
         <property name="text">
          <string>&lt;a href=&quot;https://www.flaticon.com/authors/freepik&quot; style='color: DodgerBlue'&gt;Freepick from Flaticon&lt;/a&gt;</string>
         </property>
