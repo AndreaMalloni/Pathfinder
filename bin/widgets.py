@@ -38,6 +38,7 @@ class ExtensionWidget(LayoutWidget):
         self.textEdit.setFocus()
         self.textEdit.setValidator(QRegExpValidator(QRegExp(r'^\.[a-zA-Z0-9]+$'), self))
         self.textEdit.editingFinished.connect(editMethod)
+        self.textEdit.editingFinished.connect(lambda: self.textEdit.setReadOnly(True))
 
 
 class DestinationWidget(LayoutWidget):
@@ -66,8 +67,8 @@ class GridLayout(QGridLayout):
         return (False if self.count() != 0 else True)
 
     def clear(self) -> None:  
-        for i in reversed(range(self.count())):
-            self.itemAt(i).widget().setParent(None)
+        for index in reversed(range(self.count())):
+            self.itemAt(index).widget().setParent(None)
 
     def fill(self, widgets: list[QWidget], verticalStyle: bool) -> None:
         if widgets != []:

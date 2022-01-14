@@ -73,8 +73,8 @@ class MainWindow(QMainWindow):
         if (self.focus == 3 and focus < 3) or (self.focus < 3 and focus == 3):
             self.toggleToolbar()
         self.focus = focus
-        self.toggleSidebarButton(self.sender())
         self.scrollLayout.clear()
+        self.toggleSidebarButton(self.sender())
         self.addButton.setDisabled(False)
         self.descriptionLabel.setText(labelText)
 
@@ -162,7 +162,7 @@ class MainWindow(QMainWindow):
             self.drawSourceWidgets()
         elif self.focus == 1:
             config.edit("TRACKED", "extensions", ".", widgetLabel)
-            self.drawExtensionWidgets()
+            self.addButton.setDisabled(False)
         elif self.focus == 2:
             dir = askdirectory()
             config.edit("TRACKED", "destinations", widgetLabel, dir)
