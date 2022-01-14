@@ -85,8 +85,8 @@ class Config():
         else: valueToDelete = f"{value}"
         newOption = option.replace(valueToDelete, "")
 
-        if key == "destinations":
-                self.deleteKey("TRACKLIST", value)
+        if key == "destinations": self.deleteKey("TRACKLIST", value)      
+        if value == ".": newOption = option.rsplit("|.", 1)[0]
 
         self.parser.set(section, key, newOption)
         self.saveChanges()
