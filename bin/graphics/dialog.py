@@ -1,9 +1,9 @@
 from PySide2 import QtCore
 from PySide2.QtWidgets import *
-from pyside_dynamic import *
-from resources import *
-from utility_func import existInDict
-from widgets import LayoutWidget, GridLayout
+from utils.pyside_dynamic import *
+from graphics.resources import *
+from utils.utility_func import existInDict
+from graphics.widgets import LayoutWidget, GridLayout
 
 class Dialog(QDialog):
     def __init__(self, UIModel, destination, userConfig, parent=None):

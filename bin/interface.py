@@ -1,14 +1,14 @@
 import sys
 from PySide2 import QtCore
 from PySide2.QtWidgets import *
-from pyside_dynamic import *
-from resources import *
+from utils.pyside_dynamic import *
+from graphics.resources import *
 
-from config import Config
-from service import Service
-from widgets import *
-from dialog import Dialog
-from utility_func import toFormat, askdirectory
+from data.config import Config
+from utils.service import Service
+from graphics.widgets import *
+from graphics.dialog import Dialog
+from utils.utility_func import toFormat, askdirectory
 
 
 class MainWindow(QMainWindow):

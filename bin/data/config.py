@@ -17,14 +17,15 @@ class Config():
         sources = list(self.parser.get("TRACKED", "sources").split("|"))
         extensions = list(self.parser.get("TRACKED", "extensions").split("|"))
         destinations = list(self.parser.get("TRACKED", "destinations").split("|"))
-
+        
         for key in self.parser["TRACKLIST"]:
             tracklist[key] = list(self.parser["TRACKLIST"][key].split("|"))
+            if '' in tracklist[key]: tracklist[key] = []
 
         return (sources if '' not in sources else [], 
                 extensions if '' not in extensions else [], 
                 destinations if '' not in destinations else [],
-                tracklist if '' not in tracklist else [])
+                tracklist if '' not in tracklist else {})
 
     def update(self, includeBackup = False) -> None:
         self.data = list(self.load())

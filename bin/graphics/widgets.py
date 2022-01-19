@@ -2,7 +2,7 @@ from PySide2.QtCore import QRegExp
 from PySide2 import QtCore
 from PySide2.QtGui import QRegExpValidator
 from PySide2.QtWidgets import *
-from pyside_dynamic import *
+from utils.pyside_dynamic import *
 from typing import Callable
 
 class LayoutWidget(QFrame):
@@ -110,3 +110,6 @@ class LayoutIterator:
             self._index += 1
             return result
         raise StopIteration
+
+if __name__ == '__main__':
+    widget = SourceWidget('UI\\sourceWidget.ui', 'test')
