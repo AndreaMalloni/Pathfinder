@@ -2,6 +2,7 @@ import sys
 import os.path
 import time
 import logging
+import shutil
 from watchdog.observers import Observer
 from watchdog.events import FileCreatedEvent, FileModifiedEvent, FileMovedEvent, LoggingEventHandler
 from data.config import Config
@@ -103,7 +104,7 @@ class Handler(LoggingEventHandler):
                 new_path = destination + "\{E}".format(E = file_extension.upper()[1:]) + "\{F}".format(F = filename)
                 if os.path.exists(new_path):
                     new_path = renameAsDuplicate(new_path)
-                os.rename(file, new_path)
+                shutil.move(file, new_path)
 
 if __name__ == '__main__': 
     logger = logging.getLogger(__name__)
