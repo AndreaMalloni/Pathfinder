@@ -32,7 +32,7 @@ def toFormat(values: list[str]):
     formattedString = ""
     for index, string in enumerate(values):
         formattedString += string
-        if index != len(values): formattedString += "|"
+        if index < len(values) - 1: formattedString += "|"
     return formattedString
 
 if __name__ == "__main__":

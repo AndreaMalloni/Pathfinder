@@ -14,13 +14,23 @@ class Config():
         self.parser.read(self.configFile)
         tracklist = {}
 
-        sources = list(self.parser.get("TRACKED", "sources").split("|"))
-        extensions = list(self.parser.get("TRACKED", "extensions").split("|"))
-        destinations = list(self.parser.get("TRACKED", "destinations").split("|"))
-        
-        for key in self.parser["TRACKLIST"]:
-            tracklist[key] = list(self.parser["TRACKLIST"][key].split("|"))
-            if '' in tracklist[key]: tracklist[key] = []
+        try:
+            sources = list(self.parser.get("TRACKED", "sources").split("|"))
+            extensions = list(self.parser.get("TRACKED", "extensions").split("|"))
+            destinations = list(self.parser.get("TRACKED", "destinations").split("|"))
+        except configparser.NoOptionError:
+            raise Exception("Cannot load configuration file. 'TRACKED' section is missing options")
+        except configparser.NoSectionError:
+            raise Exception("Cannot load configuration file. 'TRACKED' section is missing")
+        except AttributeError:
+            raise Exception("Cannot load configuration file. Invalid option in 'TRACKED' section")
+
+        try:
+            for key in self.parser["TRACKLIST"]:
+                tracklist[key] = list(self.parser["TRACKLIST"][key].split("|"))
+                if '' in tracklist[key]: tracklist[key] = []
+        except KeyError as e:
+            raise Exception(f"Cannot load configuration file. {str(e)} section is missing")
 
         return (sources if '' not in sources else [], 
                 extensions if '' not in extensions else [], 
@@ -57,11 +67,12 @@ class Config():
             self.parser.write(configfile)
         self.update()
 
+    # THROWS NoOptionError, NoSectionError
     def add(self, section, key, value) -> None:
         option = self.parser.get(section, key)
         newOption = f"{option}|{value}" if len(option) > 0 else f"{value}"
 
-        if key == "destinations":
+        if key == "destinations" and value != "":
             self.addKey("TRACKLIST", value)
 
         self.parser.set(section, key, newOption)

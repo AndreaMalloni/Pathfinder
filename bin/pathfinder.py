@@ -1,3 +1,4 @@
+from configparser import ParsingError
 import sys
 import os.path
 import time
@@ -20,11 +21,12 @@ class PathFinder():
         tracklist = config.load()[3]
         for source in tracklist.keys():
             for file_extension in tracklist[source]:
-                path = source + "\{E}".format(E = file_extension.upper()[1:])
-                if not os.path.exists(path):
-                    self.event_handler.logger.debug(f'Destination folder for \'{file_extension}\' extension not found, creating it...')
+                path = source + f"\{file_extension.upper()[1:]}"
+                try:
                     os.mkdir(path)
                     self.event_handler.logger.debug(f'Created destination folder: {path}')
+                except FileExistsError:
+                    self.event_handler.logger.debug(f'Destination folder for \'{file_extension}\' extension already exists')
 
     def setupObserversSchedule(self):
         self.observer.unschedule_all()
@@ -101,10 +103,15 @@ class Handler(LoggingEventHandler):
 
         for destination in tracklist:
             if file_extension in tracklist[destination]:
-                new_path = destination + "\{E}".format(E = file_extension.upper()[1:]) + "\{F}".format(F = filename)
-                if os.path.exists(new_path):
+                new_path = destination + f"\{file_extension.upper()[1:]}\{filename}"
+                try:
+                    shutil.move(file, new_path)
+                    self.logger.debug(f'File succesfully moved to: {new_path}')
+                except FileExistsError:
                     new_path = renameAsDuplicate(new_path)
-                shutil.move(file, new_path)
+                    self.logger.debug(f'The file {new_path} already exists')
+                    shutil.move(file, new_path)
+                    self.logger.debug(f'The file {new_path} has been succesfully renamed and moved')
 
 if __name__ == '__main__': 
     logger = logging.getLogger(__name__)
@@ -112,7 +119,7 @@ if __name__ == '__main__':
 
     log_formatter = logging.Formatter('%(asctime)s - %(name)s - %(message)s')
 
-    log_file_handler = logging.FileHandler('logs\\stdout.log')
+    log_file_handler = logging.FileHandler('logs\\pathfinder.log')
     log_file_handler.setLevel(logging.ERROR)
     log_file_handler.setFormatter(log_formatter)
 
@@ -122,6 +129,11 @@ if __name__ == '__main__':
     logger.addHandler(log_file_handler)
     logger.addHandler(log_stream_handler)
 
-    config = Config("data.ini")
-    pathfinder = PathFinder()
-    pathfinder.run()
+    try:
+        config = Config("data.ini")
+        pathfinder = PathFinder()
+        pathfinder.run()
+    except ParsingError:
+        logger.error("A parsing error occured. Configuration file might be corrupted")
+    except Exception as e:
+        logger.error(str(e))

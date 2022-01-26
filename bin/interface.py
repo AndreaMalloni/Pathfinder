@@ -1,4 +1,6 @@
+from configparser import NoOptionError, NoSectionError, ParsingError
 import sys
+import logging
 from PySide2 import QtCore
 from PySide2.QtWidgets import *
 from utils.pyside_dynamic import *
@@ -16,6 +18,7 @@ class MainWindow(QMainWindow):
         QMainWindow.__init__(self)
         global config
         global service
+        global logger
 
         loadUi(UIModel, self)
 
@@ -193,8 +196,28 @@ class MainWindow(QMainWindow):
         self.drawDestinationWidgets()
 
 if __name__ == "__main__":
+    logger = logging.getLogger(__name__)
+    logger.setLevel(logging.DEBUG)
+
+    log_formatter = logging.Formatter('%(asctime)s - %(name)s - %(message)s')
+
+    log_file_handler = logging.FileHandler('logs\\interface.log')
+    log_file_handler.setLevel(logging.ERROR)
+    log_file_handler.setFormatter(log_formatter)
+
+    log_stream_handler = logging.StreamHandler()
+    log_stream_handler.setFormatter(log_formatter)
+
+    logger.addHandler(log_file_handler)
+    logger.addHandler(log_stream_handler)
+
     app = QApplication(sys.argv)
-    config = Config("data.ini")
-    service = Service("PathFinder")
-    window = MainWindow(UIModel = 'UI\\pathfinder-main.ui')
-    sys.exit(app.exec_())
+    try:
+        config = Config("data.ini")
+        window = MainWindow(UIModel = 'UI\\pathfnder-main.ui')
+        service = Service("PathFinder")
+        sys.exit(app.exec_())
+    except ParsingError:
+        logger.error("A parsing error occured. Configuration file might be corrupted")
+    except Exception as e:
+        logger.error(str(e))
