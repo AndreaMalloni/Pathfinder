@@ -132,8 +132,9 @@ if __name__ == '__main__':
     try:
         config = Config("data.ini")
         pathfinder = PathFinder()
-        pathfinder.run()
     except ParsingError:
         logger.error("A parsing error occured. Configuration file might be corrupted")
     except Exception as e:
         logger.error(str(e))
+    else:
+        pathfinder.run()
