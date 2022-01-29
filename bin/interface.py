@@ -34,6 +34,7 @@ class MainWindow(QMainWindow):
         self.focus = 0
         self.drawSourceWidgets()
         self.show()
+        logger.debug("Main window succesfully initialized")
 
     def buildSourceWidgets(self, labels: list[str]) -> list[object]:
         widgets = []
@@ -41,6 +42,7 @@ class MainWindow(QMainWindow):
             widget = SourceWidget('UI\\sourceWidget.ui', label)
             widget.connectButtons(self.editLayoutWidget, self.removeLayoutWidget)
             widgets.append(widget)
+        logger.debug("Generated source widgets")
         return widgets
 
     def buildExtensionWidgets(self, labels: list[str]) -> list[object]:
@@ -49,6 +51,7 @@ class MainWindow(QMainWindow):
             widget = ExtensionWidget('UI\\extensionWidget.ui', label)
             widget.connectButtons(self.removeLayoutWidget)
             widgets.append(widget)
+        logger.debug("Generated extension widgets")
         return widgets
 
     def buildDestinationWidgets(self, labels: list[str]) -> list[object]:
@@ -57,6 +60,7 @@ class MainWindow(QMainWindow):
             widget = DestinationWidget('UI\\destinationWidget.ui', label)
             widget.connectButtons(self.linkExtension, self.editLayoutWidget, self.removeLayoutWidget)
             widgets.append(widget)
+        logger.debug("Generated destination widgets")
         return widgets
 
     def setSidebarButtonsClick(self):
@@ -64,6 +68,7 @@ class MainWindow(QMainWindow):
         self.extButton.clicked.connect(self.drawExtensionWidgets)
         self.destButton.clicked.connect(self.drawDestinationWidgets)
         self.infoButton.clicked.connect(self.drawInfoWidgets)
+        logger.debug("Sidebar buttons activated")
 
     def setToolbarButtonsClick(self):
         self.startButton.clicked.connect(service.start)
@@ -71,26 +76,32 @@ class MainWindow(QMainWindow):
         self.stopButton.clicked.connect(service.stop)
         self.stopButton.clicked.connect(lambda: self.startStopSwitch(service.status()))
         self.addButton.clicked.connect(self.newLayoutWidget)
+        logger.debug("Toolbar buttons activated")
 
     def initLayout(self, focus = 0, labelText="") -> None:
         if (self.focus == 3 and focus < 3) or (self.focus < 3 and focus == 3):
             self.toggleToolbar()
         self.focus = focus
         self.scrollLayout.clear()
+        logger.debug("Layout cleared succesfully")
         self.toggleSidebarButton(self.sender())
         self.addButton.setDisabled(False)
         self.descriptionLabel.setText(labelText)
+        logger.debug("Section label changed succesfully")
+        logger.debug("Ready to switch section")
 
     def toggleSidebarButton(self, button: QPushButton) -> None:
         for widget in self.sidebarFrame.children():
             if isinstance(widget, QPushButton) and widget != button and widget.isChecked():
                 widget.setChecked(False)
+                logger.debug(f"'{widget.text()}' button unchecked, switching to '{button.text()}'")
 
     def toggleToolbar(self):
         for widget in self.buttonFrame.children():
             if isinstance(widget, QPushButton):
                 widget.setDisabled(not widget.isEnabled())
                 widget.setVisible(not widget.isVisible())
+        logger.debug("Toolbar visibility updated")
 
     def startStopSwitch(self, status: str):
         if status == "SERVICE_RUNNING":
@@ -108,6 +119,7 @@ class MainWindow(QMainWindow):
         text = "Manage here the folders you want Pathfinder to extract your files from"
         self.initLayout(labelText=text)
         self.scrollLayout.fill(self.buildSourceWidgets(config.data[0]), verticalStyle = True)
+        logger.debug("Layout succesfully filled with source widgets")
         self.sourceButton.setChecked(True)
 
     @QtCore.Slot()
@@ -117,6 +129,7 @@ class MainWindow(QMainWindow):
 
         self.extButton.setChecked(True)
         self.scrollLayout.fill(self.buildExtensionWidgets(config.data[1]), verticalStyle = False)
+        logger.debug("Layout succesfully filled with extension widgets")
         for widget in self.scrollLayout:
             if widget.textEdit.text() == ".":
                 widget.setEditable(self.editLayoutWidget)
@@ -130,6 +143,7 @@ class MainWindow(QMainWindow):
         self.destButton.setChecked(True)
 
         self.scrollLayout.fill(self.buildDestinationWidgets(config.data[2]), verticalStyle = True)
+        logger.debug("Layout succesfully filled with destination widgets")
         for widget in self.scrollLayout:
             widget.connectExtensions(config.data[3])
 
@@ -196,6 +210,7 @@ class MainWindow(QMainWindow):
         self.drawDestinationWidgets()
 
 if __name__ == "__main__":
+
     logger = logging.getLogger(__name__)
     logger.setLevel(logging.DEBUG)
 
@@ -210,14 +225,15 @@ if __name__ == "__main__":
 
     logger.addHandler(log_file_handler)
     logger.addHandler(log_stream_handler)
-
-    app = QApplication(sys.argv)
+    
     try:
+        app = QApplication(sys.argv)
         config = Config("data.ini")
-        window = MainWindow(UIModel = 'UI\\pathfnder-main.ui')
         service = Service("PathFinder")
-        sys.exit(app.exec_())
+        window = MainWindow(UIModel = 'UI\\pathfinder-main.ui')
     except ParsingError:
         logger.error("A parsing error occured. Configuration file might be corrupted")
     except Exception as e:
         logger.error(str(e))
+    else:
+        sys.exit(app.exec_())
