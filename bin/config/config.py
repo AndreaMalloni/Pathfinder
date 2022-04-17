@@ -69,14 +69,15 @@ class Config():
 
     # THROWS NoOptionError, NoSectionError
     def add(self, section, key, value) -> None:
-        option = self.parser.get(section, key)
-        newOption = f"{option}|{value}" if len(option) > 0 else f"{value}"
+        if value != "":
+            option = self.parser.get(section, key)
+            newOption = f"{option}|{value}" if len(option) > 0 else f"{value}"
 
-        if key == "destinations" and value != "":
-            self.addKey("TRACKLIST", value)
+            if key == "destinations":
+                self.addKey("TRACKLIST", value)
 
-        self.parser.set(section, key, newOption)
-        self.saveChanges()
+            self.parser.set(section, key, newOption)
+            self.saveChanges()
 
     def edit(self, section, key, oldValue, newValue) -> None:
         option = self.parser.get(section, key)
