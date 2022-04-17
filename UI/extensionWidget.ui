@@ -35,8 +35,11 @@
       </size>
      </property>
      <property name="styleSheet">
-      <string notr="true">background-color: rgb(26, 32, 50);
+      <string notr="true">QFrame {
+background-color: rgb(26, 32, 50);
 border-radius: 10px;
+}
+
 </string>
      </property>
      <property name="frameShape">
@@ -66,7 +69,7 @@ border-radius: 10px;
         <property name="minimumSize">
          <size>
           <width>0</width>
-          <height>60</height>
+          <height>55</height>
          </size>
         </property>
         <property name="maximumSize">
@@ -89,6 +92,7 @@ color: rgb(255, 255, 255);
 border-radius: 10px;
 text-align: center;
 padding: 10px;
+background-color: rgb(26, 32, 50);
 }
 </string>
         </property>
