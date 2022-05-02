@@ -6,7 +6,7 @@ import logging
 import shutil
 from watchdog.observers import Observer
 from watchdog.events import FileCreatedEvent, FileModifiedEvent, FileMovedEvent, LoggingEventHandler
-from data.config import Config
+from config.config import Config
 from utils.utility_func import renameAsDuplicate
 
 class PathFinder():
@@ -44,9 +44,9 @@ class PathFinder():
         self.observer.stop()
 
     def run(self):
-        try:
-            self.startTracking()
-            while True:
+        self.startTracking()
+        while True:
+            try:
                 if config.hasChanged():
                     self.event_handler.logger.debug(f'Configuration file has changed')
                     config.update(includeBackup = True)
@@ -55,11 +55,13 @@ class PathFinder():
                     self.setupObserversSchedule()
                     self.event_handler.logger.debug(f'Service schedule updated succesfully')
                 time.sleep(1)
-        except KeyboardInterrupt:
-            self.stopTracking()
-            self.observer.join()
-            self.event_handler.logger.debug(f'Execution stopped succesfully')
-            sys.exit()
+            except KeyboardInterrupt:
+                self.stopTracking()
+                self.observer.join()
+                self.event_handler.logger.debug(f'Execution stopped succesfully')
+                sys.exit()
+            except FileNotFoundError:
+                self.setupDestinationFolders()
 
 class Handler(LoggingEventHandler):
     def __init__(self, logger) -> None:
@@ -104,14 +106,18 @@ class Handler(LoggingEventHandler):
         for destination in tracklist:
             if file_extension in tracklist[destination]:
                 new_path = destination + f"\{file_extension.upper()[1:]}\{filename}"
+                if os.path.exists(new_path):
+                    self.logger.debug(f'The file {new_path} already exists')
+                    new_path = renameAsDuplicate(new_path)
+                    self.logger.debug(f'The file {new_path} has been succesfully renamed')
                 try:
                     shutil.move(file, new_path)
                     self.logger.debug(f'File succesfully moved to: {new_path}')
-                except FileExistsError:
-                    new_path = renameAsDuplicate(new_path)
-                    self.logger.debug(f'The file {new_path} already exists')
+                except PermissionError as e:
+                    self.logger.error(str(e))
+                except FileNotFoundError as e:
+                    os.mkdir(destination + f"\{file_extension.upper()[1:]}")
                     shutil.move(file, new_path)
-                    self.logger.debug(f'The file {new_path} has been succesfully renamed and moved')
 
 if __name__ == '__main__': 
     logger = logging.getLogger(__name__)
@@ -132,9 +138,8 @@ if __name__ == '__main__':
     try:
         config = Config("data.ini")
         pathfinder = PathFinder()
+        pathfinder.run()
     except ParsingError:
         logger.error("A parsing error occured. Configuration file might be corrupted")
     except Exception as e:
         logger.error(str(e))
-    else:
-        pathfinder.run()
