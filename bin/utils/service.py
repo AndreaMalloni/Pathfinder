@@ -3,8 +3,6 @@ from subprocess import PIPE, run
 class Service():
     def __init__(self, name: str) -> None:
         self.name = name
-        if self.status() == "":
-            raise Exception("Service not found")
 
     def status(self):
         status = run("{nssm} status {service}".format(
