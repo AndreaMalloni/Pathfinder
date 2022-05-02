@@ -1,12 +1,13 @@
-from configparser import NoOptionError, NoSectionError, ParsingError
+from configparser import ParsingError
 import sys
 import logging
 from PySide2 import QtCore
 from PySide2.QtWidgets import *
 from utils.pyside_dynamic import *
 from graphics.resources import *
+from win10toast import ToastNotifier
 
-from data.config import Config
+from config.config import Config
 from utils.service import Service
 from graphics.widgets import *
 from graphics.dialog import Dialog
@@ -76,6 +77,7 @@ class MainWindow(QMainWindow):
         self.stopButton.clicked.connect(service.stop)
         self.stopButton.clicked.connect(lambda: self.startStopSwitch(service.status()))
         self.addButton.clicked.connect(self.newLayoutWidget)
+        self.checkButton.clicked.connect(self.checkService)
         logger.debug("Toolbar buttons activated")
 
     def initLayout(self, focus = 0, labelText="") -> None:
@@ -106,13 +108,30 @@ class MainWindow(QMainWindow):
     def startStopSwitch(self, status: str):
         if status == "SERVICE_RUNNING":
             self.startButton.setDisabled(True)
+            self.checkButton.setDisabled(False)
             self.stopButton.setDisabled(False)
         elif status == "SERVICE_STOPPED" or status == "SERVICE_PAUSED":
             self.stopButton.setDisabled(True)
+            self.checkButton.setDisabled(False)
             self.startButton.setDisabled(False)
         else:
             self.startButton.setDisabled(True)
             self.stopButton.setDisabled(True)
+            self.checkButton.setDisabled(False)
+
+    def checkService(self):
+        toast = ToastNotifier()
+
+        if service.status() == "":
+            toast.show_toast("PathFinder", "No service found, we recommend you to install it using the script provided in the app folder.", 
+            duration = 10,
+            icon_path ="assets\logo.ico",
+            threaded = True)
+        else:
+            toast.show_toast("PathFinder", "Service found! The program is correctly running in background.", 
+            duration = 10,
+            icon_path ="assets\logo.ico",
+            threaded = True)
 
     @QtCore.Slot()
     def drawSourceWidgets(self) -> None:
@@ -170,8 +189,8 @@ class MainWindow(QMainWindow):
             config.add("TRACKED", "destinations", dir)
             self.drawDestinationWidgets()
 
-    @QtCore.Slot()
     def editLayoutWidget(self) -> None:
+        print(self.sender())
         widgetLabel = self.sender().parent().parent().textEdit.text()
         if self.focus == 0:
             dir = askdirectory()
@@ -185,7 +204,6 @@ class MainWindow(QMainWindow):
             config.edit("TRACKED", "destinations", widgetLabel, dir)
             self.drawDestinationWidgets()
 
-    @QtCore.Slot()
     def removeLayoutWidget(self) -> None:
         widgetLabel = self.sender().parent().parent().textEdit.text()
         if self.focus == 0:
@@ -198,7 +216,6 @@ class MainWindow(QMainWindow):
             config.delete("TRACKED", "destinations", widgetLabel)
             self.drawDestinationWidgets()
 
-    @QtCore.Slot()
     def linkExtension(self) -> None:
         destination = self.sender().parent().parent().textEdit.text()
         dialog = Dialog(UIModel = 'UI\\dialog.ui', destination = destination, userConfig = config)
