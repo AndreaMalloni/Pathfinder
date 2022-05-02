@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="icons">
+    <file>loupe.ico</file>
     <file>play-button.ico</file>
     <file>stop-button.ico</file>
     <file>search.ico</file>
