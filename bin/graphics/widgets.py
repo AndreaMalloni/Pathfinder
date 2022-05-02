@@ -1,6 +1,6 @@
 from PySide2.QtCore import QRegExp
 from PySide2 import QtCore
-from PySide2.QtGui import QRegExpValidator
+from PySide2.QtGui import QRegExpValidator, QValidator
 from PySide2.QtWidgets import *
 from utils.pyside_dynamic import *
 from typing import Callable
@@ -29,17 +29,28 @@ class SourceWidget(LayoutWidget):
 class ExtensionWidget(LayoutWidget):
     def __init__(self, UIModel: str, label: str) -> None:
         super().__init__(UIModel, label)
+        self.validator = None
 
     def connectButtons(self, deleteMethod: Callable) -> None:
         self.deleteButton.clicked.connect(deleteMethod)
 
     def setEditable(self, editMethod: Callable):
+        self.validator = QRegExpValidator(QRegExp(r'^\.[a-zA-Z0-9]+$'), self)
         self.textEdit.setReadOnly(False)
         self.textEdit.setFocus()
-        self.textEdit.setValidator(QRegExpValidator(QRegExp(r'^\.[a-zA-Z0-9]+$'), self))
+        self.textEdit.setValidator(self.validator)
+        self.textEdit.textChanged.connect(self.changeBorder)
         self.textEdit.editingFinished.connect(editMethod)
         self.textEdit.editingFinished.connect(lambda: self.textEdit.setReadOnly(True))
+        self.textEdit.editingFinished.connect(lambda: self.lineFrame.setStyleSheet("QFrame {background-color: rgb(26, 32, 50);border-radius: 10px;}"))
+        self.changeBorder()
 
+    def changeBorder(self):
+        state, string, pos = self.validator.validate(self.textEdit.text(), 0)
+        if state == QValidator.Acceptable:
+            self.lineFrame.setStyleSheet("QFrame {border: 2px solid green;background-color: rgb(26, 32, 50);border-radius: 10px;}")
+        else:
+            self.lineFrame.setStyleSheet("QFrame {border: 2px solid red;background-color: rgb(26, 32, 50);border-radius: 10px;}")
 
 class DestinationWidget(LayoutWidget):
     def __init__(self, UIModel: str, label: str) -> None:
@@ -60,7 +71,7 @@ class DestinationWidget(LayoutWidget):
 class GridLayout(QGridLayout):
     def __init__(self) -> None:
         super().__init__()
-        self.setHorizontalSpacing(12)
+        self.setHorizontalSpacing(10)
         self.widgets = []
 
     def isEmpty(self) -> bool:
