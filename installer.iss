@@ -2,9 +2,9 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "PathFinder"
-#define MyAppVersion "1.0"
+#define MyAppVersion "1.1"
 #define MyAppPublisher "Andrea Malloni"
-#define MyAppExeName "pf-config.exe"
+#define MyAppExeName "interface.exe"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application. Do not use the same AppId value in installers for other applications.
@@ -33,9 +33,9 @@ Name: "italian"; MessagesFile: "compiler:Languages\Italian.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "D:\Projects\pathfinder\build\installable\files\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
-Source: "D:\Projects\pathfinder\build\installable\dependencies\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "D:\Projects\pathfinder\build\installable\files\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "D:\Projects\pathfinder\build\setup-ready\files\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
+Source: "D:\Projects\pathfinder\build\setup-ready\dependencies\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "D:\Projects\pathfinder\build\setup-ready\files\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
@@ -46,6 +46,6 @@ Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: de
 Filename: "{app}\tools\install.bat"; Parameters: "install"; Flags: runhidden
 
 [UninstallRun]
-Filename: "{app}\tools\uninstall.bat"; Parameters: "/x"; Flags: runhidden
+RunOnceId: "DelService"; Filename: "{app}\tools\uninstall.bat"; Parameters: "/x"; Flags: runhidden
 
 
