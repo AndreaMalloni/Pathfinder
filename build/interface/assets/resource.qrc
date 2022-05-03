@@ -1,0 +1,23 @@
+<RCC>
+  <qresource prefix="icons">
+    <file>loupe.ico</file>
+    <file>play-button.ico</file>
+    <file>stop-button.ico</file>
+    <file>search.ico</file>
+    <file>logo.png</file>
+    <file>check.ico</file>
+    <file>checkbox.ico</file>
+    <file>delete.ico</file>
+    <file>down-arrow.png</file>
+    <file>edit.ico</file>
+    <file>folder.ico</file>
+    <file>info.ico</file>
+    <file>logo.ico</file>
+    <file>multiplication.ico</file>
+    <file>plus.ico</file>
+    <file>plus2.ico</file>
+    <file>puzzle.ico</file>
+    <file>stop.ico</file>
+    <file>travel.ico</file>
+  </qresource>
+</RCC>
