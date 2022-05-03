@@ -1079,6 +1079,52 @@ padding: 10px;
                 </widget>
                </item>
                <item>
+                <widget class="QPushButton" name="checkButton">
+                 <property name="font">
+                  <font>
+                   <family>Roboto Medium</family>
+                   <pointsize>10</pointsize>
+                   <weight>75</weight>
+                   <bold>true</bold>
+                  </font>
+                 </property>
+                 <property name="styleSheet">
+                  <string notr="true">QPushButton
+{
+color: rgb(255, 255, 255);
+border-radius: 5px;
+text-align: center;
+padding: 10px;
+}
+
+QPushButton:hover
+{
+color:rgb(255, 255, 255);
+border-radius: 5px;
+text-align: center;
+padding: 10px;
+background-color: rgb(26, 32, 50);
+}
+
+QPushButton:disabled
+{
+color: rgb(142, 142, 142);
+border-radius: 5px;
+text-align: center;
+padding: 10px;
+}</string>
+                 </property>
+                 <property name="text">
+                  <string> Check Service</string>
+                 </property>
+                 <property name="icon">
+                  <iconset>
+                   <normalon>:/icons/loupe.ico</normalon>
+                  </iconset>
+                 </property>
+                </widget>
+               </item>
+               <item>
                 <spacer name="horizontalSpacer">
                  <property name="orientation">
                   <enum>Qt::Horizontal</enum>

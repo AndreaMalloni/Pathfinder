@@ -114,7 +114,7 @@ font: bold;
          </font>
         </property>
         <property name="text">
-         <string>* Software Version: 1.0.0</string>
+         <string>* Software Version: 1.1.0</string>
         </property>
         <property name="textInteractionFlags">
          <set>Qt::TextBrowserInteraction</set>
