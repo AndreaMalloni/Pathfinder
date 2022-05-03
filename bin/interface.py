@@ -125,12 +125,12 @@ class MainWindow(QMainWindow):
         if service.status() == "":
             toast.show_toast("PathFinder", "No service found, we recommend you to install it using the script provided in the app folder.", 
             duration = 10,
-            icon_path ="assets\logo.ico",
+            icon_path ="assets\\logo.ico",
             threaded = True)
         else:
             toast.show_toast("PathFinder", "Service found! The program is correctly running in background.", 
             duration = 10,
-            icon_path ="assets\logo.ico",
+            icon_path ="assets\\logo.ico",
             threaded = True)
 
     @QtCore.Slot()
