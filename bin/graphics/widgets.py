@@ -72,6 +72,7 @@ class GridLayout(QGridLayout):
     def __init__(self) -> None:
         super().__init__()
         self.setHorizontalSpacing(10)
+        self.rowWidgets = 0
         self.widgets = []
 
     def isEmpty(self) -> bool:
@@ -81,7 +82,7 @@ class GridLayout(QGridLayout):
         for index in reversed(range(self.count())):
             self.itemAt(index).widget().setParent(None)
 
-    def fill(self, widgets: list[QWidget], verticalStyle: bool) -> None:
+    def fill(self, widgets: list[QWidget]) -> None:
         if widgets != []:
             currentX, currentY = 0, 0
             self.setAlignment(QtCore.Qt.AlignTop)
@@ -89,21 +90,18 @@ class GridLayout(QGridLayout):
                 widget.x, widget.y = currentX, currentY
                 self.addWidget(widget, widget.y, widget.x)
                 
-                currentX, currentY = self.__nextPosition(currentX, currentY, verticalStyle)
+                currentX, currentY = self.__nextPosition(currentX, currentY)
         else:
             widget = loadUi('UI\\default.ui')
             self.setAlignment(QtCore.Qt.AlignVCenter)
             self.addWidget(widget)
         self.widgets = widgets
 
-    def __nextPosition(self, x: int, y: int, verticalStyle: bool) -> tuple[int, int]:
-        if not verticalStyle:
-            if x < 3:
-                x += 1
-            else:
-                x = 0
-                y += 1
+    def __nextPosition(self, x: int, y: int) -> tuple[int, int]:
+        if x < self.rowWidgets - 1:
+            x += 1
         else:
+            x = 0
             y += 1
         return (x, y)
 

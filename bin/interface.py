@@ -15,6 +15,7 @@ from utils.utility_func import toFormat, askdirectory
 
 
 class MainWindow(QMainWindow):
+    resized = QtCore.Signal()
     def __init__(self, UIModel):
         QMainWindow.__init__(self)
         global config
@@ -22,11 +23,10 @@ class MainWindow(QMainWindow):
         global logger
 
         loadUi(UIModel, self)
-
+        self.resized.connect(self.resizeLayout)
         self.scrollLayout = GridLayout() 
         self.scrollAreaContent.setLayout(self.scrollLayout)
 
-        self.setFixedSize(800, 500) 
         self.setSidebarButtonsClick()
         self.setToolbarButtonsClick()
 
@@ -36,6 +36,21 @@ class MainWindow(QMainWindow):
         self.drawSourceWidgets()
         self.show()
         logger.debug("Main window succesfully initialized")
+
+    def resizeEvent(self, event):
+        self.resized.emit()
+
+    @QtCore.Slot()
+    def resizeLayout(self):
+        if self.focus == 0:
+            rowWidgets = self.scrollArea.geometry().width()//600
+            if rowWidgets != self.scrollLayout.rowWidgets: self.drawSourceWidgets() 
+        elif self.focus == 1:
+            rowWidgets = self.scrollArea.geometry().width()//140
+            if rowWidgets != self.scrollLayout.rowWidgets: self.drawExtensionWidgets() 
+        elif self.focus == 2:
+            rowWidgets = self.scrollArea.geometry().width()//600
+            if rowWidgets != self.scrollLayout.rowWidgets: self.drawDestinationWidgets()
 
     def buildSourceWidgets(self, labels: list[str]) -> list[object]:
         widgets = []
@@ -137,7 +152,8 @@ class MainWindow(QMainWindow):
     def drawSourceWidgets(self) -> None:
         text = "Manage here the folders you want Pathfinder to extract your files from"
         self.initLayout(labelText=text)
-        self.scrollLayout.fill(self.buildSourceWidgets(config.data[0]), verticalStyle = True)
+        self.scrollLayout.rowWidgets = self.scrollArea.geometry().width()//600
+        self.scrollLayout.fill(self.buildSourceWidgets(config.data[0]))
         logger.debug("Layout succesfully filled with source widgets")
         self.sourceButton.setChecked(True)
 
@@ -147,7 +163,8 @@ class MainWindow(QMainWindow):
         self.initLayout(focus = 1, labelText = text)
 
         self.extButton.setChecked(True)
-        self.scrollLayout.fill(self.buildExtensionWidgets(config.data[1]), verticalStyle = False)
+        self.scrollLayout.rowWidgets = self.scrollArea.geometry().width()//140
+        self.scrollLayout.fill(self.buildExtensionWidgets(config.data[1]))
         logger.debug("Layout succesfully filled with extension widgets")
         for widget in self.scrollLayout:
             if widget.textEdit.text() == ".":
@@ -160,8 +177,8 @@ class MainWindow(QMainWindow):
         self.initLayout(focus = 2, labelText = text)
         
         self.destButton.setChecked(True)
-
-        self.scrollLayout.fill(self.buildDestinationWidgets(config.data[2]), verticalStyle = True)
+        self.scrollLayout.rowWidgets = self.scrollArea.geometry().width()//600
+        self.scrollLayout.fill(self.buildDestinationWidgets(config.data[2]))
         logger.debug("Layout succesfully filled with destination widgets")
         for widget in self.scrollLayout:
             widget.connectExtensions(config.data[3])
@@ -174,6 +191,7 @@ class MainWindow(QMainWindow):
         self.infoButton.setChecked(True)
         widget = loadUi('UI\\info.ui')
         self.scrollLayout.addWidget(widget)
+        self.scrollLayout.setAlignment(QtCore.Qt.AlignVCenter)
         
     @QtCore.Slot()
     def newLayoutWidget(self) -> None:
