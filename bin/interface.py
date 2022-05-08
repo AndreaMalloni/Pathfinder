@@ -23,8 +23,22 @@ class MainWindow(QMainWindow):
 
         loadUi(UIModel, self)
 
-        self.scrollLayout = GridLayout() 
-        self.scrollAreaContent.setLayout(self.scrollLayout)
+        self.sourceLayout = GridLayout() 
+        self.extensionLayout = GridLayout() 
+        self.destinationLayout = GridLayout()
+        self.aboutLayout = QVBoxLayout()
+
+        widget = loadUi('UI\\info.ui')
+        self.aboutLayout.addWidget(widget)
+
+        self.sourceLayout.fill(self.buildSourceWidgets(config.data[0]), verticalStyle = True)
+        self.extensionLayout.fill(self.buildExtensionWidgets(config.data[1]), verticalStyle = False)
+        self.destinationLayout.fill(self.buildDestinationWidgets(config.data[2]), verticalStyle = True)
+
+        self.sourceAreaContent.setLayout(self.sourceLayout)
+        self.extensionAreaContent.setLayout(self.extensionLayout)
+        self.destinationAreaContent.setLayout(self.destinationLayout)
+        self.about.setLayout(self.aboutLayout)
 
         self.setFixedSize(800, 500) 
         self.setSidebarButtonsClick()
@@ -32,8 +46,7 @@ class MainWindow(QMainWindow):
 
         self.startStopSwitch(service.status())
 
-        self.focus = 0
-        self.drawSourceWidgets()
+        self.switchToSources()
         self.show()
         logger.debug("Main window succesfully initialized")
 
@@ -65,10 +78,11 @@ class MainWindow(QMainWindow):
         return widgets
 
     def setSidebarButtonsClick(self):
-        self.sourceButton.clicked.connect(self.drawSourceWidgets)
-        self.extButton.clicked.connect(self.drawExtensionWidgets)
-        self.destButton.clicked.connect(self.drawDestinationWidgets)
-        self.infoButton.clicked.connect(self.drawInfoWidgets)
+        self.logoButton.clicked.connect(self.switchToHome)
+        self.sourceButton.clicked.connect(self.switchToSources)
+        self.extButton.clicked.connect(self.switchToExtensions)
+        self.destButton.clicked.connect(self.switchToDestinations)
+        self.infoButton.clicked.connect(self.switchToInfo)
         logger.debug("Sidebar buttons activated")
 
     def setToolbarButtonsClick(self):
@@ -76,21 +90,8 @@ class MainWindow(QMainWindow):
         self.startButton.clicked.connect(lambda: self.startStopSwitch(service.status()))
         self.stopButton.clicked.connect(service.stop)
         self.stopButton.clicked.connect(lambda: self.startStopSwitch(service.status()))
-        self.addButton.clicked.connect(self.newLayoutWidget)
         self.checkButton.clicked.connect(self.checkService)
         logger.debug("Toolbar buttons activated")
-
-    def initLayout(self, focus = 0, labelText="") -> None:
-        if (self.focus == 3 and focus < 3) or (self.focus < 3 and focus == 3):
-            self.toggleToolbar()
-        self.focus = focus
-        self.scrollLayout.clear()
-        logger.debug("Layout cleared succesfully")
-        self.toggleSidebarButton(self.sender())
-        self.addButton.setDisabled(False)
-        self.descriptionLabel.setText(labelText)
-        logger.debug("Section label changed succesfully")
-        logger.debug("Ready to switch section")
 
     def toggleSidebarButton(self, button: QPushButton) -> None:
         for widget in self.sidebarFrame.children():
@@ -134,87 +135,91 @@ class MainWindow(QMainWindow):
             threaded = True)
 
     @QtCore.Slot()
-    def drawSourceWidgets(self) -> None:
-        text = "Manage here the folders you want Pathfinder to extract your files from"
-        self.initLayout(labelText=text)
-        self.scrollLayout.fill(self.buildSourceWidgets(config.data[0]), verticalStyle = True)
-        logger.debug("Layout succesfully filled with source widgets")
+    def switchToSources(self) -> None:
+        self.stackedWidget.setCurrentWidget(self.sources)
+        self.toggleSidebarButton(self.sourceButton)
         self.sourceButton.setChecked(True)
+        text = "Manage here the folders you want Pathfinder to extract your files from"
+        self.sourceLabel.setText(text)
+        logger.debug("Layout succesfully filled with source widgets")
 
     @QtCore.Slot()
-    def drawExtensionWidgets(self) -> None:
-        text = "Add here the extensions of the files you want Pathfinder to move"
-        self.initLayout(focus = 1, labelText = text)
-
+    def switchToExtensions(self) -> None:
+        self.stackedWidget.setCurrentWidget(self.extensions)
+        self.toggleSidebarButton(self.extButton)
         self.extButton.setChecked(True)
-        self.scrollLayout.fill(self.buildExtensionWidgets(config.data[1]), verticalStyle = False)
+        text = "Add here the extensions of the files you want Pathfinder to move"
+        self.extensionLabel.setText(text)
+        
         logger.debug("Layout succesfully filled with extension widgets")
-        for widget in self.scrollLayout:
+        for widget in self.extensionLayout:
             if widget.textEdit.text() == ".":
                 widget.setEditable(self.editLayoutWidget)
                 self.addButton.setDisabled(True)
 
     @QtCore.Slot()
-    def drawDestinationWidgets(self) -> None:
-        text = "Manage here the folders where you want Pathfinder to place your files"
-        self.initLayout(focus = 2, labelText = text)
-        
+    def switchToDestinations(self) -> None:
+        self.stackedWidget.setCurrentWidget(self.destinations)
+        self.toggleSidebarButton(self.destButton)
         self.destButton.setChecked(True)
-
-        self.scrollLayout.fill(self.buildDestinationWidgets(config.data[2]), verticalStyle = True)
+        text = "Manage here the folders where you want Pathfinder to place your files"
+        self.destinationLabel.setText(text)
+        
         logger.debug("Layout succesfully filled with destination widgets")
-        for widget in self.scrollLayout:
+        for widget in self.destinationLayout:
             widget.connectExtensions(config.data[3])
 
     @QtCore.Slot()
-    def drawInfoWidgets(self) -> None:
-        text = "About this software"
-        self.initLayout(focus = 3, labelText = text)
-
+    def switchToInfo(self) -> None:
+        self.stackedWidget.setCurrentWidget(self.about)
+        self.toggleSidebarButton(self.infoButton)
         self.infoButton.setChecked(True)
-        widget = loadUi('UI\\info.ui')
-        self.scrollLayout.addWidget(widget)
+    
+    @QtCore.Slot()
+    def switchToHome(self) -> None:
+        self.stackedWidget.setCurrentWidget(self.home)
+        self.toggleSidebarButton(self.logoButton)
+        self.logoButton.setChecked(True)
         
     @QtCore.Slot()
     def newLayoutWidget(self) -> None:
         if self.focus == 0:
             dir = askdirectory()
             config.add("TRACKED", "sources", dir)
-            self.drawSourceWidgets()
+            self.switchToSources()
         elif self.focus == 1:
             config.add("TRACKED", "extensions", ".")
-            self.drawExtensionWidgets()
+            self.switchToExtensions()
         elif self.focus == 2:
             dir = askdirectory()
             config.add("TRACKED", "destinations", dir)
-            self.drawDestinationWidgets()
+            self.switchToDestinations()
 
     def editLayoutWidget(self) -> None:
-        print(self.sender())
         widgetLabel = self.sender().parent().parent().textEdit.text()
         if self.focus == 0:
             dir = askdirectory()
             config.edit("TRACKED", "sources", widgetLabel, dir)
-            self.drawSourceWidgets()
+            self.switchToSources()
         elif self.focus == 1:
             config.edit("TRACKED", "extensions", ".", widgetLabel)
             self.addButton.setDisabled(False)
         elif self.focus == 2:
             dir = askdirectory()
             config.edit("TRACKED", "destinations", widgetLabel, dir)
-            self.drawDestinationWidgets()
+            self.switchToDestinations()
 
     def removeLayoutWidget(self) -> None:
         widgetLabel = self.sender().parent().parent().textEdit.text()
         if self.focus == 0:
             config.delete("TRACKED", "sources", widgetLabel)
-            self.drawSourceWidgets()
+            self.switchToSources()
         elif self.focus == 1:
             config.delete("TRACKED", "extensions", widgetLabel)
-            self.drawExtensionWidgets()
+            self.switchToExtensions()
         elif self.focus == 2:
             config.delete("TRACKED", "destinations", widgetLabel)
-            self.drawDestinationWidgets()
+            self.switchToDestinations()
 
     def linkExtension(self) -> None:
         destination = self.sender().parent().parent().textEdit.text()
@@ -224,7 +229,7 @@ class MainWindow(QMainWindow):
         oldSelections = config.parser.get("TRACKLIST", destination)
         newSelections = toFormat(dialog.selections)
         config.edit("TRACKLIST", destination, oldSelections, newSelections)
-        self.drawDestinationWidgets()
+        self.switchToDestinations()
 
 if __name__ == "__main__":
 
