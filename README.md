@@ -21,4 +21,4 @@ The script, which will run in background as a windows service, uses the **watchd
 ### Configuration
 Your configuration is stored in .ini format, in the *data.ini* file
 
-**WARNING - DEPRECATED CODE, USE AT YOUR OWN RISK**
+**WARNING - MESSY AND DEPRECATED CODE, USE AT YOUR OWN RISK**
